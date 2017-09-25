@@ -1,0 +1,28 @@
+group 'io.apisense.embed.influx'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Logging
+    compile 'log4j:log4j:1.2.17'
+    compile 'org.slf4j:slf4j-log4j12:1.7.25'
+    // InfluxDB configuration
+    compile 'com.moandjiezana.toml:toml4j:0.7.2'
+    // Extract archives
+    compile 'org.codehaus.plexus:plexus-container-default:1.7.1'
+    compile 'org.codehaus.plexus:plexus-archiver:3.5'
+    // Web request
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'
+
+    // Tests
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:2.10.0'
+    testCompile 'com.squareup.okhttp3:mockwebserver:3.9.0'
+}

@@ -2,6 +2,7 @@ group 'io.apisense.embed.influx'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -27,3 +28,12 @@ dependencies {
     testCompile 'org.mockito:mockito-core:2.10.0'
     testCompile 'com.squareup.okhttp3:mockwebserver:3.9.0'
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = false
+    }
+}
+
+check.dependsOn jacocoTestReport

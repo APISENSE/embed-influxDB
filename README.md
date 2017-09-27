@@ -1,3 +1,7 @@
+[![Travis](https://img.shields.io/travis/APISENSE/embed-influxDB.svg)]()
+[![Codecov](https://img.shields.io/codecov/c/github/APISENSE/embed-influxDB.svg)]()
+
+
 # Embedded InfluxDB
 
 Start influx servers at runtime.

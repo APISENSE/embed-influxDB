@@ -12,6 +12,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -97,7 +98,7 @@ public class InfluxBinaryDownloaderTest {
         verify(parentDir, never()).mkdirs();
         assertThat("We had a request", webServer.getRequestCount(), equalTo(1));
         assertThat("The request was on the right URL", recordedRequest.getRequestUrl(), equalTo(requestUrl));
-        verify(extractorMock).extract(eq(configuration.os.archiveType), any(), eq(targetPath));
+        verify(extractorMock).extract(eq(configuration.os.archiveType), ArgumentMatchers.<File>any(), eq(targetPath));
     }
 
     @Test

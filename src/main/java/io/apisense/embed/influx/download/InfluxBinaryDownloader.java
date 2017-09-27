@@ -14,6 +14,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
+/**
+ * Default implementation of a {@link BinaryDownloader}.
+ */
 public class InfluxBinaryDownloader implements BinaryDownloader {
     private static final Logger logger = LoggerFactory.getLogger(InfluxBinaryDownloader.class.getName());
     private static final String INFLUX_BIN_LOCATION = "usr" + File.separator + "bin" + File.separator + "influxd";
@@ -67,9 +70,11 @@ public class InfluxBinaryDownloader implements BinaryDownloader {
     }
 
     /**
-     * @param configuration
-     * @param targetPath
-     * @throws IOException
+     * Download the required InfluxDB archive and extract it into the given targetPath.
+     *
+     * @param configuration The version to download.
+     * @param targetPath    The extraction target.
+     * @throws IOException If anything goes wrong during download or extraction.
      */
     private void downloadAndExtractServer(VersionConfiguration configuration, File targetPath) throws IOException {
         logger.debug("Server is not locally available (" + configuration.os
@@ -87,7 +92,7 @@ public class InfluxBinaryDownloader implements BinaryDownloader {
      *
      * @param sourceUrl The source to download
      * @return The output file.
-     * @throws IOException If anything goes wrong during writing.
+     * @throws IOException If anything goes wrong during download or writing.
      */
     private File downloadVersion(URL sourceUrl) throws IOException {
         File outputFile = File.createTempFile("influxDB-archive", Long.toString(System.nanoTime()));
@@ -105,6 +110,13 @@ public class InfluxBinaryDownloader implements BinaryDownloader {
         return outputFile;
     }
 
+    /**
+     * Actual writing of the input stream to the output file.
+     *
+     * @param input      The stream to read from.
+     * @param outputFile The file to write into.
+     * @throws IOException If anything goes wrong during writing.
+     */
     private void writeFile(InputStream input, File outputFile) throws IOException {
         byte[] buffer = new byte[4096];
         int n;

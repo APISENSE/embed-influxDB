@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Default implementation of a {@link ConfigurationWriter}.
+ */
 public class InfluxConfiguration implements ConfigurationWriter {
     private static final Logger logger = LoggerFactory.getLogger(InfluxBinaryDownloader.class.getName());
     private final Map<String, Object> configMap;

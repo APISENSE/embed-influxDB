@@ -5,6 +5,9 @@ import io.apisense.embed.influx.configuration.VersionConfiguration;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Available operations to download an InfluxDB binary archive.
+ */
 public interface BinaryDownloader {
 
     /**
@@ -13,6 +16,7 @@ public interface BinaryDownloader {
      *
      * @param configuration Server's version description.
      * @return The server binary.
+     * @throws IOException If anything goes wrong during download.
      */
     File download(VersionConfiguration configuration) throws IOException;
 }

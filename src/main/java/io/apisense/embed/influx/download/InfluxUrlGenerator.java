@@ -8,6 +8,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Default implementation of an {@link UrlGenerator}.
+ */
 class InfluxUrlGenerator implements UrlGenerator {
     private static final Logger logger = LoggerFactory.getLogger(InfluxUrlGenerator.class.getName());
     private static final String BASE_URL = "https://dl.influxdata.com/influxdb";

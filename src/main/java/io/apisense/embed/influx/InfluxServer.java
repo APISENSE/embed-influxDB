@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Implementation of the InfluxDB embedded server controller.
+ */
 public class InfluxServer implements EmbeddedDB {
     private static final Logger logger = LoggerFactory.getLogger(InfluxServer.class.getName());
 
@@ -151,6 +154,7 @@ public class InfluxServer implements EmbeddedDB {
          * Default: The production server using runtime to discover OS and Architecture.
          *
          * @param versionConfig The configuration.
+         * @return The current {@link Builder}.
          */
         public Builder setVersionConfig(VersionConfiguration versionConfig) {
             this.versionConfig = versionConfig;
@@ -163,8 +167,9 @@ public class InfluxServer implements EmbeddedDB {
          * Default: Downloading into ~/.embedded-influx with {@link InfluxBinaryDownloader}
          *
          * @param downloader The directory in which the binary should be stored.
+         * @return The current {@link Builder}.
          */
-        public Builder setDownloader(BinaryDownloader downloader) throws IOException {
+        public Builder setDownloader(BinaryDownloader downloader) {
             this.downloader = downloader;
             return this;
         }
@@ -175,6 +180,7 @@ public class InfluxServer implements EmbeddedDB {
          * Default: A temporary folder prefixed with embedded-influx and suffixed with a nano seconds timestamp.
          *
          * @param databasePath The path in which the data will be stored.
+         * @return The current {@link Builder}.
          * @throws IOException If the given file is not a directory.
          */
         public Builder setDatabasePath(File databasePath) throws IOException {
@@ -191,6 +197,7 @@ public class InfluxServer implements EmbeddedDB {
          * Default: A default configuration.
          *
          * @param influxConfiguration The configuration to set.
+         * @return The current {@link Builder}.
          */
         public Builder setInfluxConfiguration(ConfigurationWriter influxConfiguration) {
             this.influxConfiguration = influxConfiguration;
@@ -203,6 +210,7 @@ public class InfluxServer implements EmbeddedDB {
          * Default: An {@link io.apisense.embed.influx.execution.InfluxExecutor} instance.
          *
          * @param executor Executor to use.
+         * @return The current {@link Builder}.
          */
         public Builder setExecutor(ProcessExecutor executor) {
             this.executor = executor;

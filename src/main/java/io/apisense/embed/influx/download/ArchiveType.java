@@ -5,6 +5,9 @@ import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 
+/**
+ * Describe the handled Archive and their respective extensions.
+ */
 public enum ArchiveType {
     ZIP("zip") {
         @Override

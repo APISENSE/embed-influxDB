@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+/**
+ * Default implementation of an {@link ArchiveExtractor} using {@link org.codehaus.plexus.archiver.UnArchiver}.
+ */
 public class InfluxArchiveExtractor implements ArchiveExtractor {
     private static final Logger logger = LoggerFactory.getLogger(InfluxArchiveExtractor.class.getName());
 

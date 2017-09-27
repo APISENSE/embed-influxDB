@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Default implementation of a {@link ProcessExecutor}, using {@link Runtime} to start server.
+ */
 public class InfluxExecutor implements ProcessExecutor {
     private static final Logger logger = LoggerFactory.getLogger(InfluxExecutor.class.getName());
 

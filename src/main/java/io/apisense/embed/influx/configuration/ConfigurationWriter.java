@@ -4,14 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Customize the influxDB database configuration and write it down.
+ */
 public interface ConfigurationWriter {
 
     /**
      * Add configuration statements.
      *
      * @param config Statements to import in the Influx configuration.
-     * @see <a href="https://docs.influxdata.com/influxdb/v1.3/administration/config">configuration elements</a>
-     * @see <a href="https://github.com/mwanji/toml4j#user-content-converting-objects-to-toml">How to format the input {@link Map}</a>
+     * @see <a href="https://docs.influxdata.com/influxdb/v1.3/administration/config">InfluxDB configuration elements</a>
+     * @see <a href="https://github.com/mwanji/toml4j#user-content-converting-objects-to-toml">How to format the input Map</a>
      */
     void addStatements(Map<String, Object> config);
 

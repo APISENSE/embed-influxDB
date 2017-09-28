@@ -13,14 +13,14 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class InfluxConfigurationTest {
+public class InfluxConfigurationWriterTest {
     private int port;
-    private InfluxConfiguration config;
+    private InfluxConfigurationWriter config;
 
     @Before
     public void setUp() throws Exception {
         port = 1234;
-        config = new InfluxConfiguration(port);
+        config = new InfluxConfigurationWriter(port);
     }
 
     @Test

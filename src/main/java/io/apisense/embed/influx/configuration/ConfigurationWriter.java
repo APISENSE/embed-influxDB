@@ -25,4 +25,6 @@ public interface ConfigurationWriter {
      * @throws IOException If the file writing goes wrong.
      */
     File writeFile() throws IOException;
+
+    void setDataPath(File dataPath);
 }

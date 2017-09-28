@@ -60,7 +60,7 @@ public class InfluxServerTest {
 
     @Test(expected = IOException.class)
     public void testBuilderThrowsIfDatabasePathIsFile() throws Exception {
-        new InfluxServer.Builder().setDatabasePath(temporaryFile);
+        new InfluxServer.Builder().setDataPath(temporaryFile);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class InfluxServerTest {
     public void testCleanupWillRemoveConfigFileAndData() throws Exception {
         File dbPath = mock(File.class);
         doReturn(true).when(dbPath).isDirectory();
-        builder.setDatabasePath(dbPath);
+        builder.setDataPath(dbPath);
         EmbeddedDB server = builder.build();
 
         server.start();
@@ -124,7 +124,7 @@ public class InfluxServerTest {
     public void testCleanupWillStopThenCleanup() throws Exception {
         File dbPath = mock(File.class);
         doReturn(true).when(dbPath).isDirectory();
-        builder.setDatabasePath(dbPath);
+        builder.setDataPath(dbPath);
         EmbeddedDB server = builder.build();
 
         server.start();

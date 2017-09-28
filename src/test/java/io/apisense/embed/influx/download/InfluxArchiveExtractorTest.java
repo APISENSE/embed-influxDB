@@ -30,7 +30,9 @@ public class InfluxArchiveExtractorTest {
 
     @After
     public void tearDown() throws Exception {
-        recursiveDeletion(outputDir);
+        if (outputDir.exists()) {
+            recursiveDeletion(outputDir);
+        }
     }
 
     @Test
@@ -43,6 +45,40 @@ public class InfluxArchiveExtractorTest {
         checkFileExtraction(ArchiveType.TGZ);
     }
 
+    @Test
+    public void testFindServerDaemonFound() throws Exception {
+        File path = fetchDaemonParent("existing");
+
+        File serverDaemon = extractor.findServerDaemon(path);
+
+        assertThat("We found the daemon file", serverDaemon.exists(), is(true));
+        assertThat("We found the daemon file", serverDaemon.getAbsolutePath().endsWith("influxd"), is(true));
+    }
+
+    @Test(expected = IOException.class)
+    public void testFindServerDaemonThrowsIfNotPresent() throws Exception {
+        File path = fetchDaemonParent("notExisting");
+
+        extractor.findServerDaemon(path);
+    }
+
+    @Test(expected = IOException.class)
+    public void testFindServerDaemonThrowsIfWronglyLocated() throws Exception {
+        File path = fetchDaemonParent("wrongLocation");
+
+        extractor.findServerDaemon(path);
+    }
+
+    @Test
+    public void testDaemonFound() throws Exception {
+        File path = fetchDaemonParent("existing");
+
+        File serverDaemon = extractor.findServerDaemon(path);
+
+        assertThat("We found the daemon file", serverDaemon.exists(), is(true));
+        assertThat("We found the daemon file", serverDaemon.getAbsolutePath().endsWith("influxd"), is(true));
+    }
+
     private void checkFileExtraction(ArchiveType type) {
         extractor.extract(type, fetchTestArchive(type), outputDir);
 
@@ -52,8 +88,15 @@ public class InfluxArchiveExtractorTest {
     }
 
     private File fetchTestArchive(ArchiveType type) {
-        String resourcePath = File.separator + "extraction" + File.separator + "test." + type.extension;
-        URL resource = getClass().getResource(resourcePath);
+        return fetchResource("extraction" + File.separator + "test." + type.extension);
+    }
+
+    private File fetchDaemonParent(String name) {
+        return fetchResource("findDaemon" + File.separator + name);
+    }
+
+    private File fetchResource(String resourcePath) {
+        URL resource = getClass().getResource(File.separator + resourcePath);
         return new File(resource.getFile());
     }
 

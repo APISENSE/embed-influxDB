@@ -19,7 +19,6 @@ import java.net.URL;
  */
 public class InfluxBinaryDownloader implements BinaryDownloader {
     private static final Logger logger = LoggerFactory.getLogger(InfluxBinaryDownloader.class.getName());
-    private static final String INFLUX_BIN_LOCATION = "usr" + File.separator + "bin" + File.separator + "influxd";
 
     private final File outputDir;
     private final UrlGenerator urlGenerator;
@@ -47,7 +46,7 @@ public class InfluxBinaryDownloader implements BinaryDownloader {
             downloadAndExtractServer(configuration, targetPath);
         }
 
-        return new File(targetPath, INFLUX_BIN_LOCATION);
+        return archiveExtractor.findServerDaemon(targetPath);
     }
 
     /**

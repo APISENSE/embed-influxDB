@@ -1,7 +1,7 @@
 package io.apisense.embed.influx;
 
 import io.apisense.embed.influx.configuration.ConfigurationWriter;
-import io.apisense.embed.influx.configuration.InfluxConfiguration;
+import io.apisense.embed.influx.configuration.InfluxConfigurationWriter;
 import io.apisense.embed.influx.configuration.InfluxVersion;
 import io.apisense.embed.influx.configuration.VersionConfiguration;
 import io.apisense.embed.influx.download.BinaryDownloader;
@@ -35,6 +35,7 @@ public class InfluxServer implements EmbeddedDB {
                          BinaryDownloader downloader, ConfigurationWriter influxConfigurationWriter,
                          ProcessExecutor executor) {
         this.influxConfigurationWriter = influxConfigurationWriter;
+        influxConfigurationWriter.setDataPath(dataPath);
         this.versionConfig = versionConfig;
         this.downloader = downloader;
         this.dataPath = dataPath;
@@ -112,13 +113,13 @@ public class InfluxServer implements EmbeddedDB {
     public static class Builder {
         private ConfigurationWriter influxConfiguration;
         private BinaryDownloader downloader;
-        private File databasePath;
+        private File dataPath;
         private VersionConfiguration versionConfig;
         private ProcessExecutor executor;
 
         public InfluxServer build() throws IOException {
-            if (databasePath == null) {
-                setDatabasePath(createTempDir());
+            if (dataPath == null) {
+                setDataPath(createTempDir());
             }
             if (versionConfig == null) {
                 setVersionConfig(VersionConfiguration.fromRuntime(InfluxVersion.PRODUCTION));
@@ -128,12 +129,12 @@ public class InfluxServer implements EmbeddedDB {
                 setDownloader(new InfluxBinaryDownloader(binaryCache));
             }
             if (influxConfiguration == null) {
-                setInfluxConfiguration(new InfluxConfiguration(8086));
+                setInfluxConfiguration(new InfluxConfigurationWriter(8086));
             }
             if (executor == null) {
                 setExecutor(new InfluxExecutor());
             }
-            return new InfluxServer(databasePath, versionConfig, downloader, influxConfiguration, executor);
+            return new InfluxServer(dataPath, versionConfig, downloader, influxConfiguration, executor);
         }
 
         private File createTempDir() throws IOException {
@@ -179,15 +180,15 @@ public class InfluxServer implements EmbeddedDB {
          *
          * Default: A temporary folder prefixed with embedded-influx and suffixed with a nano seconds timestamp.
          *
-         * @param databasePath The path in which the data will be stored.
+         * @param dataPath The path in which the data will be stored.
          * @return The current {@link Builder}.
          * @throws IOException If the given file is not a directory.
          */
-        public Builder setDatabasePath(File databasePath) throws IOException {
-            if (!databasePath.isDirectory()) {
-                throw new IOException("Not a directory: " + databasePath.getAbsolutePath());
+        public Builder setDataPath(File dataPath) throws IOException {
+            if (!dataPath.isDirectory()) {
+                throw new IOException("Not a directory: " + dataPath.getAbsolutePath());
             }
-            this.databasePath = databasePath;
+            this.dataPath = dataPath;
             return this;
         }
 

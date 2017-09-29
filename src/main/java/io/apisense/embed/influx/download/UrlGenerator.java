@@ -20,13 +20,4 @@ interface UrlGenerator {
      * @return The theoretical download url.
      */
     URL buildSource(VersionConfiguration configuration);
-
-    /**
-     * Generate the path to store the downloaded server.
-     *
-     * @param parent        The parent directory.
-     * @param configuration Server's version description.
-     * @return The extraction endpoint.
-     */
-    File buildTarget(File parent, VersionConfiguration configuration);
 }

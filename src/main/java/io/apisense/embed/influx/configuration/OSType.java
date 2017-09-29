@@ -1,20 +1,23 @@
 package io.apisense.embed.influx.configuration;
 
-import io.apisense.embed.influx.download.ArchiveType;
+import de.flapdoodle.embed.process.distribution.Platform;
+import io.apisense.embed.influx.download.InfluxArchiveType;
 
 /**
- * Available platforms for InfluxDB associated with their available archive {@link ArchiveType}.
+ * Available platforms for InfluxDB associated with their available archive {@link InfluxArchiveType}.
  */
 public enum OSType {
-    Linux("linux", ArchiveType.TGZ),
-    Windows("windows", ArchiveType.ZIP);
+    Linux("linux", InfluxArchiveType.TGZ, Platform.Linux),
+    Windows("windows", InfluxArchiveType.ZIP, Platform.Windows);
 
     public final String dlPath;
-    public final ArchiveType archiveType;
+    public final InfluxArchiveType archiveType;
+    private Platform platform;
 
-    OSType(String dlPath, ArchiveType archiveType) {
+    OSType(String dlPath, InfluxArchiveType archiveType, Platform platform) {
         this.dlPath = dlPath;
         this.archiveType = archiveType;
+        this.platform = platform;
     }
 
     /**
@@ -24,5 +27,9 @@ public enum OSType {
      */
     public static OSType getCurrent() {
         return System.getProperty("os.name").contains("windows") ? OSType.Windows : OSType.Linux;
+    }
+
+    public Platform toPlatform() {
+        return platform;
     }
 }

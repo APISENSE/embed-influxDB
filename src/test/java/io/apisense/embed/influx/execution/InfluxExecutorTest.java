@@ -1,80 +1,113 @@
 package io.apisense.embed.influx.execution;
 
+import de.flapdoodle.embed.process.distribution.Distribution;
+import io.apisense.embed.influx.configuration.ConfigurationWriter;
+import io.apisense.embed.influx.configuration.InfluxVersion;
+import io.apisense.embed.influx.configuration.OSArchitecture;
+import io.apisense.embed.influx.configuration.OSType;
+import io.apisense.embed.influx.configuration.VersionConfiguration;
+import io.apisense.embed.influx.configuration.embed.InfluxExecutableConfig;
+import io.apisense.embed.influx.execution.embed.InfluxExecutable;
+import io.apisense.embed.influx.execution.embed.InfluxProcess;
+import io.apisense.embed.influx.execution.embed.InfluxServerStarter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class InfluxExecutorTest {
 
-    private Runtime runtimeMock;
-    private ProcessExecutor executor;
-    private Process processMock;
+    private EmbeddedExecutor executor;
+    private InfluxServerStarter starterMock;
+    private InfluxExecutableConfig influxExecutableConfig;
+    private Distribution distribution;
+    private InfluxExecutable executionMock;
+    private InfluxProcess processMock;
 
     @Before
     public void setUp() throws Exception {
-        runtimeMock = Mockito.mock(Runtime.class);
-        processMock = Mockito.mock(Process.class);
-        doReturn(processMock).when(runtimeMock).exec(anyString());
-        doReturn(new ByteArrayInputStream("".getBytes())).when(processMock).getErrorStream();
+        distribution = new VersionConfiguration(OSType.Linux, OSArchitecture.ARM, InfluxVersion.PRODUCTION);
+        influxExecutableConfig = new InfluxExecutableConfig(distribution.getVersion(), Mockito.mock(ConfigurationWriter.class));
 
-        executor = new InfluxExecutor(runtimeMock);
+        starterMock = Mockito.mock(InfluxServerStarter.class);
+
+        executor = new InfluxExecutor(starterMock, influxExecutableConfig, distribution);
+        executionMock = Mockito.mock(InfluxExecutable.class);
+        doReturn(executionMock).when(starterMock).prepare(influxExecutableConfig, distribution);
+
+        processMock = Mockito.mock(InfluxProcess.class);
+        doReturn(processMock).when(executionMock).start();
     }
 
     @Test
-    public void testStartProcessWillRunTheServer() throws Exception {
-        String pathname = "/path";
-        executor.startProcess(new File(pathname));
+    public void testPrepareCreateOneExecution() throws Exception {
+        executor.prepare();
+        executor.prepare(); // prepare is called only once
 
-        Mockito.verify(runtimeMock).exec(pathname + " run");
+        verify(starterMock, times(1)).prepare(influxExecutableConfig, distribution);
     }
 
     @Test
-    public void testStartMultipleTimeWillExecuteTheProcessOnlyOneTime() throws Exception {
-        String pathname = "/path";
-        executor.startProcess(new File(pathname));
-        executor.startProcess(new File(pathname));
+    public void testCleanupResetsExecution() throws Exception {
+        executor.prepare();
+        executor.cleanup();
+        executor.prepare();
 
-        Mockito.verify(runtimeMock, Mockito.times(1)).exec(pathname + " run");
+        verify(starterMock, times(2)).prepare(influxExecutableConfig, distribution);
     }
 
     @Test
-    public void testStopWillResetProcess() throws Exception {
-        String pathname = "/path";
-        executor.startProcess(new File(pathname));
-        executor.stopProcess();
-        executor.startProcess(new File(pathname));
+    public void testStartNotCalledWhileNotPrepared() throws Exception {
+        executor.start();
 
-        Mockito.verify(runtimeMock, Mockito.times(2)).exec(pathname + " run");
+        verify(executionMock, never()).start();
     }
 
     @Test
-    public void testStartProcessWillRunTheServerWithConfig() throws Exception {
-        String binPath = "/path";
-        String configPath = "/config";
-        executor.startProcess(new File(binPath), new File(configPath));
+    public void testStartWillStartExecution() throws Exception {
+        executor.prepare();
+        executor.start();
+        executor.start(); // Start is called only once
 
-        Mockito.verify(runtimeMock).exec(binPath + " run -config " + configPath);
-    }
-
-    @Test(expected = IOException.class)
-    public void testStartProcessWillThrowIfExecutionThrows() throws Exception {
-        Mockito.doThrow(new IOException()).when(runtimeMock).exec(anyString());
-
-        executor.startProcess(new File("/path"), new File("/config"));
+        verify(executionMock).start();
     }
 
     @Test
-    public void testStopProcessWillDestroyProcessIfStarted() throws Exception {
-        executor.startProcess(new File("/path"));
-        executor.stopProcess();
+    public void testStopNotCalledWhileNotPrepared() throws Exception {
+        executor.stop();
 
-        Mockito.verify(processMock).destroy();
+        verify(executionMock, never()).stop();
+    }
+
+    @Test
+    public void testStopWillStopProcess() throws Exception {
+        executor.prepare();
+        executor.start();
+        executor.stop();
+
+        verify(executionMock).start();
+        verify(executionMock, never()).stop();
+        //verify(processMock).stop(); // TODO: We can't test that since method is final
+    }
+
+    @Test
+    public void testCleanupWillDoNothingIfNotStarted() throws Exception {
+        executor.prepare();
+        executor.cleanup();
+
+        verify(processMock, never()).stop();
+    }
+
+    @Test
+    public void testCleanupWillStopExecution() throws Exception {
+        executor.prepare();
+        executor.start();
+        executor.cleanup();
+
+        verify(executionMock).stop();
     }
 }

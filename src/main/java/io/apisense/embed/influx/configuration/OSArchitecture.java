@@ -1,17 +1,21 @@
 package io.apisense.embed.influx.configuration;
 
+import de.flapdoodle.embed.process.distribution.BitSize;
+
 /**
  * Available architectures for InfluxDB.
  */
 public enum OSArchitecture {
-    i386("i386"),
-    x86_64("amd64"),
-    ARM("armhf");
+    i386("i386", BitSize.B32),
+    x86_64("amd64", BitSize.B64),
+    ARM("armhf", BitSize.B32); //TODO: See if there is any issue with arm and BitSize?
 
     public final String dlPath;
+    public final BitSize bitSize;
 
-    OSArchitecture(String dlPath) {
+    OSArchitecture(String dlPath, BitSize bitSize) {
         this.dlPath = dlPath;
+        this.bitSize = bitSize;
     }
 
     /**
@@ -30,6 +34,10 @@ public enum OSArchitecture {
         if (arch.contains("arm")) {
             return ARM;
         }
-        throw new UnknownArchitectureException(arch);
+        throw new IllegalArgumentException("Unable to find architecture: " + arch);
+    }
+
+    public BitSize toBitSize() {
+        return bitSize;
     }
 }

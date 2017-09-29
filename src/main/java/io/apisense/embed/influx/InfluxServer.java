@@ -1,13 +1,18 @@
 package io.apisense.embed.influx;
 
+import de.flapdoodle.embed.process.config.IRuntimeConfig;
+import de.flapdoodle.embed.process.config.store.IDownloadConfig;
+import de.flapdoodle.embed.process.distribution.Distribution;
+import de.flapdoodle.embed.process.store.IArtifactStore;
 import io.apisense.embed.influx.configuration.ConfigurationWriter;
-import io.apisense.embed.influx.configuration.InfluxConfigurationWriter;
 import io.apisense.embed.influx.configuration.InfluxVersion;
 import io.apisense.embed.influx.configuration.VersionConfiguration;
-import io.apisense.embed.influx.download.BinaryDownloader;
-import io.apisense.embed.influx.download.InfluxBinaryDownloader;
+import io.apisense.embed.influx.configuration.embed.InfluxArtifactStoreBuilder;
+import io.apisense.embed.influx.configuration.embed.InfluxDownloadConfigBuilder;
+import io.apisense.embed.influx.configuration.embed.InfluxExecutableConfig;
+import io.apisense.embed.influx.configuration.embed.InfluxRuntimeConfigBuilder;
 import io.apisense.embed.influx.execution.InfluxExecutor;
-import io.apisense.embed.influx.execution.ProcessExecutor;
+import io.apisense.embed.influx.execution.embed.InfluxServerStarter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,27 +25,19 @@ import java.io.IOException;
 public class InfluxServer implements EmbeddedDB {
     private static final Logger logger = LoggerFactory.getLogger(InfluxServer.class.getName());
 
-    private final File dataPath;
-    private final VersionConfiguration versionConfig;
-    private final BinaryDownloader downloader;
-    private final ConfigurationWriter influxConfigurationWriter;
-    private final ProcessExecutor executor;
-
-
-    private File serverBinary = null;
     private ServerState currentState = ServerState.UNKNOWN;
-    private File serverConfig = null;
 
-    private InfluxServer(File dataPath, VersionConfiguration versionConfig,
-                         BinaryDownloader downloader, ConfigurationWriter influxConfigurationWriter,
-                         ProcessExecutor executor) {
-        this.influxConfigurationWriter = influxConfigurationWriter;
-        influxConfigurationWriter.setDataPath(dataPath);
-        this.versionConfig = versionConfig;
-        this.downloader = downloader;
-        this.dataPath = dataPath;
+    private final InfluxExecutor executor;
+
+    private InfluxServer(InfluxServerStarter influxServerStarter, InfluxExecutableConfig executableConfig,
+                         Distribution versionConfiguration) {
+        this(new InfluxExecutor(influxServerStarter, executableConfig, versionConfiguration));
+    }
+
+    InfluxServer(InfluxExecutor executor) {
         this.executor = executor;
     }
+
 
     @Override
     public void init() throws ServerAlreadyRunningException {
@@ -49,12 +46,7 @@ public class InfluxServer implements EmbeddedDB {
         }
 
         logger.info("Initializing server: " + this.toString());
-        try {
-            this.serverBinary = downloader.download(versionConfig);
-        } catch (IOException e) {
-            logger.error("Unable to download InfluxDB: " + e.getLocalizedMessage());
-            throw new RuntimeException(e);
-        }
+        executor.prepare();
 
         this.currentState = ServerState.READY;
     }
@@ -64,14 +56,13 @@ public class InfluxServer implements EmbeddedDB {
         if (currentState == ServerState.STARTED) {
             throw new ServerAlreadyRunningException(this);
         }
-        if (currentState != ServerState.READY) {
+        if (currentState != ServerState.READY && currentState != ServerState.STOPPED) {
             init();
         }
 
         logger.info("Starting server: " + this.toString());
         try {
-            serverConfig = influxConfigurationWriter.writeFile();
-            executor.startProcess(serverBinary, serverConfig);
+            executor.start();
         } catch (IOException e) {
             logger.error("Unable to start server: " + e.getLocalizedMessage());
             throw new RuntimeException(e);
@@ -87,8 +78,7 @@ public class InfluxServer implements EmbeddedDB {
         }
 
         logger.info("Stopping server: " + this.toString());
-        executor.stopProcess();
-
+        executor.stop();
         currentState = ServerState.STOPPED;
     }
 
@@ -99,54 +89,34 @@ public class InfluxServer implements EmbeddedDB {
         }
 
         logger.info("Removing data for server: " + this.toString());
-        if (!(dataPath.delete())) {
-            logger.warn("Unable to remove data dir: " + dataPath.getAbsolutePath());
-        }
-        if (!(serverConfig.delete())) {
-            logger.warn("Unable to remove config file: " + serverConfig.getAbsolutePath());
-        }
-        serverConfig = null;
+        executor.cleanup();
 
         currentState = ServerState.CLEAN;
     }
 
     public static class Builder {
-        private ConfigurationWriter influxConfiguration;
-        private BinaryDownloader downloader;
-        private File dataPath;
+        private ConfigurationWriter configurationWriter;
         private VersionConfiguration versionConfig;
-        private ProcessExecutor executor;
+        private File storePath;
+        private File extractionPath;
 
         public InfluxServer build() throws IOException {
-            if (dataPath == null) {
-                setDataPath(createTempDir());
-            }
             if (versionConfig == null) {
                 setVersionConfig(VersionConfiguration.fromRuntime(InfluxVersion.PRODUCTION));
             }
-            if (downloader == null) {
-                File binaryCache = new File(System.getProperty("user.home") + File.separator + ".embedded-influx");
-                setDownloader(new InfluxBinaryDownloader(binaryCache));
-            }
-            if (influxConfiguration == null) {
-                setInfluxConfiguration(new InfluxConfigurationWriter(8088, 8086));
-            }
-            if (executor == null) {
-                setExecutor(new InfluxExecutor());
-            }
-            return new InfluxServer(dataPath, versionConfig, downloader, influxConfiguration, executor);
+
+            IRuntimeConfig runtimeConfig = buildRuntimeConfig();
+
+            InfluxServerStarter influxServerStarter = new InfluxServerStarter(runtimeConfig);
+            InfluxExecutableConfig executionConfig = new InfluxExecutableConfig(versionConfig.version, configurationWriter);
+
+            return new InfluxServer(influxServerStarter, executionConfig, versionConfig);
         }
 
-        private File createTempDir() throws IOException {
-            File tempFile = File.createTempFile("embedded-influx", Long.toString(System.nanoTime()));
-            if (!(tempFile.delete())) {
-                throw new IOException("Could not delete temp file: " + tempFile.getAbsolutePath());
-            }
-
-            if (!(tempFile.mkdir())) {
-                throw new IOException("Could not create temp directory: " + tempFile.getAbsolutePath());
-            }
-            return tempFile;
+        private IRuntimeConfig buildRuntimeConfig() {
+            IDownloadConfig downloadConfig = new InfluxDownloadConfigBuilder(storePath).getConfig();
+            IArtifactStore store = new InfluxArtifactStoreBuilder(downloadConfig, extractionPath).getConfig();
+            return new InfluxRuntimeConfigBuilder(store).getConfig();
         }
 
         /**
@@ -163,32 +133,32 @@ public class InfluxServer implements EmbeddedDB {
         }
 
         /**
-         * Set the tool used for downloading InfluxDB.
+         * Set the location of the stored InfluxDB binaries directory.
          *
-         * Default: Downloading into ~/.embedded-influx with {@link InfluxBinaryDownloader}
-         *
-         * @param downloader The directory in which the binary should be stored.
+         * @param storePath Tge directory in which binaries should be stored.
          * @return The current {@link Builder}.
+         * @throws IOException If the given {@link File} is not a directory.
          */
-        public Builder setDownloader(BinaryDownloader downloader) {
-            this.downloader = downloader;
+        public Builder setStorePath(File storePath) throws IOException {
+            if (!storePath.isDirectory()) {
+                throw new IOException("Not a directory: " + storePath.getAbsolutePath());
+            }
+            this.storePath = storePath;
             return this;
         }
 
         /**
-         * Set the data containing folder.
+         * Set the location of the extracted InfluxDB binaries directory.
          *
-         * Default: A temporary folder prefixed with embedded-influx and suffixed with a nano seconds timestamp.
-         *
-         * @param dataPath The path in which the data will be stored.
+         * @param extractionPath The directory extraction should occur.
          * @return The current {@link Builder}.
-         * @throws IOException If the given file is not a directory.
+         * @throws IOException If the given {@link File} is not a directory.
          */
-        public Builder setDataPath(File dataPath) throws IOException {
-            if (!dataPath.isDirectory()) {
-                throw new IOException("Not a directory: " + dataPath.getAbsolutePath());
+        public Builder setExtractionPath(File extractionPath) throws IOException {
+            if (!extractionPath.isDirectory()) {
+                throw new IOException("Not a directory: " + extractionPath.getAbsolutePath());
             }
-            this.dataPath = dataPath;
+            this.extractionPath = extractionPath;
             return this;
         }
 
@@ -197,24 +167,11 @@ public class InfluxServer implements EmbeddedDB {
          *
          * Default: A default configuration.
          *
-         * @param influxConfiguration The configuration to set.
+         * @param configurationWriter The configuration to set.
          * @return The current {@link Builder}.
          */
-        public Builder setInfluxConfiguration(ConfigurationWriter influxConfiguration) {
-            this.influxConfiguration = influxConfiguration;
-            return this;
-        }
-
-        /**
-         * Set the {@link ProcessExecutor}.
-         *
-         * Default: An {@link io.apisense.embed.influx.execution.InfluxExecutor} instance.
-         *
-         * @param executor Executor to use.
-         * @return The current {@link Builder}.
-         */
-        public Builder setExecutor(ProcessExecutor executor) {
-            this.executor = executor;
+        public Builder setInfluxConfiguration(ConfigurationWriter configurationWriter) {
+            this.configurationWriter = configurationWriter;
             return this;
         }
     }

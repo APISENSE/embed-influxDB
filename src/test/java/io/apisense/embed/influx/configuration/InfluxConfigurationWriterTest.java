@@ -14,13 +14,15 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class InfluxConfigurationWriterTest {
-    private int port;
+    private int httpPort;
     private InfluxConfigurationWriter config;
+    private int backupAndRestorePort;
 
     @Before
     public void setUp() throws Exception {
-        port = 1234;
-        config = new InfluxConfigurationWriter(port);
+        httpPort = 1234;
+        backupAndRestorePort = 4321;
+        config = new InfluxConfigurationWriter(backupAndRestorePort, httpPort);
     }
 
     @Test
@@ -29,10 +31,19 @@ public class InfluxConfigurationWriterTest {
         List<String> content = Files.readAllLines(file.toPath());
         file.delete();
 
-        assertThat("We have a line in the file", content.size(), equalTo(1));
+        assertThat("We have a line in the file", content.size(), equalTo(4));
         String onlyLine = content.get(0);
-        assertThat("Our port configuration is present", onlyLine.contains("bind-address"), is(true));
-        assertThat("Our port configuration is present", onlyLine.contains("127.0.0.1:" + port), is(true));
+        assertThat("Our backup port configuration is present", onlyLine.contains("bind-address"), is(true));
+        assertThat("Our backup port configuration is present", onlyLine.contains(":" + backupAndRestorePort), is(true));
+
+        onlyLine = content.get(1);
+        assertThat("This line is empty", onlyLine.isEmpty(), is(true));
+
+        onlyLine = content.get(2);
+        assertThat("We have the HTTP Section", onlyLine.contains("[http]"), is(true));
+        onlyLine = content.get(3);
+        assertThat("Our http port configuration is present", onlyLine.contains("bind-address"), is(true));
+        assertThat("Our http port configuration is present", onlyLine.contains(":" + httpPort), is(true));
     }
 
     @Test
@@ -54,13 +65,14 @@ public class InfluxConfigurationWriterTest {
         List<String> content = Files.readAllLines(file.toPath());
         file.delete();
 
-        assertThat("We have a line in the file", content.size(), equalTo(5));
+        assertThat("We have a line in the file", content.size(), equalTo(8));
         String onlyLine = content.get(0);
-        assertThat("Our port configuration is present (key)", onlyLine.contains("bind-address"), is(true));
-        assertThat("Our port configuration is present (value)", onlyLine.contains("127.0.0.1:" + port), is(true));
+        assertThat("Our backup port configuration is present", onlyLine.contains("bind-address"), is(true));
+        assertThat("Our backup port configuration is present", onlyLine.contains(":" + backupAndRestorePort), is(true));
 
         onlyLine = content.get(1);
         assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
+
         onlyLine = content.get(2);
         assertThat("Our test category is present", onlyLine.contains(customCategory), is(true));
         onlyLine = content.get(3);
@@ -69,7 +81,15 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(4);
         assertThat("Our second custom configuration is present (key)", onlyLine.contains(secondKey), is(true));
         assertThat("Our second custom configuration is present (value)", onlyLine.contains(secondValue), is(true));
-    }
 
+        onlyLine = content.get(5);
+        assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
+
+        onlyLine = content.get(6);
+        assertThat("We have the HTTP Section", onlyLine.contains("[http]"), is(true));
+        onlyLine = content.get(7);
+        assertThat("Our http port configuration is present", onlyLine.contains("bind-address"), is(true));
+        assertThat("Our http port configuration is present", onlyLine.contains(":" + httpPort), is(true));
+    }
 
 }

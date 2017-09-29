@@ -15,19 +15,25 @@ import java.util.Map;
  */
 public class InfluxConfigurationWriter implements ConfigurationWriter {
     private static final Logger logger = LoggerFactory.getLogger(InfluxBinaryDownloader.class.getName());
+    // Sections
     public static final String META_SECTION = "meta";
     public static final String DATA_SECTION = "data";
     public static final String HTTP_SECTION = "http";
 
+    // Entries
+    public static final String BIND_ADDRESS_ENTRY = "bind-address";
+    public static final String DIR_ENTRY = "dir";
+
     private final Map<String, Object> configMap;
     private final TomlWriter tomlWriter;
 
-    public InfluxConfigurationWriter(int port) {
-        this(port, new TomlWriter());
+    public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort) {
+        this(backupAndRestorePort, httpPort, new TomlWriter());
     }
 
-    InfluxConfigurationWriter(int port, TomlWriter writer) {
+    InfluxConfigurationWriter(int backupAndRestorePort, int port, TomlWriter writer) {
         configMap = new HashMap<>();
+        configMap.put(BIND_ADDRESS_ENTRY, ":" + backupAndRestorePort);
         configMap.put(HTTP_SECTION, defaultHttpSection(port));
         tomlWriter = writer;
     }
@@ -40,19 +46,19 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
 
     private static Map<String, String> defaultHttpSection(int port) {
         HashMap<String, String> meta = new HashMap<>();
-        meta.put("bind-address", ":" + port);
+        meta.put(BIND_ADDRESS_ENTRY, ":" + port);
         return meta;
     }
 
     private static Map<String, String> defaultMetaSection(File dataPath) {
         HashMap<String, String> meta = new HashMap<>();
-        meta.put("dir", dataPath.getAbsolutePath() + File.separator + "meta");
+        meta.put(DIR_ENTRY, dataPath.getAbsolutePath() + File.separator + "meta");
         return meta;
     }
 
     private static Map<String, String> defaultDataSection(File dataPath) {
         HashMap<String, String> meta = new HashMap<>();
-        meta.put("dir", dataPath.getAbsolutePath() + File.separator + "data");
+        meta.put(DIR_ENTRY, dataPath.getAbsolutePath() + File.separator + "data");
         meta.put("wal-dir", dataPath.getAbsolutePath() + File.separator + "wal-dir");
         return meta;
     }

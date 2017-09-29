@@ -6,7 +6,7 @@
 
 Start influx servers at runtime.
 
-Usage:
+## Usage
 
 ```java
 package io.apisense.embed.influx;
@@ -18,7 +18,8 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException, ServerAlreadyRunningException, InterruptedException, ServerNotRunningException {
         InfluxServer.Builder builder = new InfluxServer.Builder();
-        builder.setInfluxConfiguration(new InfluxConfigurationWriter(9966)); // Assign a new port
+        // Customize the server configuration, namely used ports
+        builder.setInfluxConfiguration(new InfluxConfigurationWriter(8088, 8086));
         InfluxServer server = builder.build();
         
         server.start();
@@ -27,3 +28,9 @@ public class Main {
     }
 }
 ```
+
+## Notes
+
+- InfluxDB is using [2 ports by default per server](https://docs.influxdata.com/influxdb/v1.3/administration/ports/),
+ one for the [Backup & Restore](https://docs.influxdata.com/influxdb/v1.3/administration/backup_and_restore/) feature,
+ and another for the [HTTP query endpoint](https://docs.influxdata.com/influxdb/v1.3/tools/api/).

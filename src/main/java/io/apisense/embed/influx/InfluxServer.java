@@ -129,7 +129,7 @@ public class InfluxServer implements EmbeddedDB {
                 setDownloader(new InfluxBinaryDownloader(binaryCache));
             }
             if (influxConfiguration == null) {
-                setInfluxConfiguration(new InfluxConfigurationWriter(8086));
+                setInfluxConfiguration(new InfluxConfigurationWriter(8088, 8086));
             }
             if (executor == null) {
                 setExecutor(new InfluxExecutor());

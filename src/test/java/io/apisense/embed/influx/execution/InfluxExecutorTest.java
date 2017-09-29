@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -14,11 +15,15 @@ public class InfluxExecutorTest {
 
     private Runtime runtimeMock;
     private ProcessExecutor executor;
+    private Process processMock;
 
     @Before
     public void setUp() throws Exception {
         runtimeMock = Mockito.mock(Runtime.class);
-        doReturn(Mockito.mock(Process.class)).when(runtimeMock).exec(anyString());
+        processMock = Mockito.mock(Process.class);
+        doReturn(processMock).when(runtimeMock).exec(anyString());
+        doReturn(new ByteArrayInputStream("".getBytes())).when(processMock).getErrorStream();
+
         executor = new InfluxExecutor(runtimeMock);
     }
 
@@ -67,9 +72,6 @@ public class InfluxExecutorTest {
 
     @Test
     public void testStopProcessWillDestroyProcessIfStarted() throws Exception {
-        Process processMock = Mockito.mock(Process.class);
-        doReturn(processMock).when(runtimeMock).exec(anyString());
-
         executor.startProcess(new File("/path"));
         executor.stopProcess();
 

@@ -1,5 +1,5 @@
 group 'io.apisense.embed.influx'
-version '0.1.0-SNAPSHOT'
+version '1.0.0'
 
 apply from: 'nexusConfig.gradle'
 ext.commonLicense = {

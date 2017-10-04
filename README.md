@@ -1,6 +1,6 @@
-[![Travis](https://img.shields.io/travis/APISENSE/embed-influxDB.svg)]()
-[![Codecov](https://img.shields.io/codecov/c/github/APISENSE/embed-influxDB.svg)]()
-
+[![Travis](https://img.shields.io/travis/APISENSE/embed-influxDB.svg)](https://travis-ci.org/APISENSE/embed-influxDB)
+[![Codecov](https://img.shields.io/codecov/c/github/APISENSE/embed-influxDB.svg)](https://codecov.io/gh/APISENSE/embed-influxDB)
+[![Maven Central](https://img.shields.io/maven-central/v/io.apisense.embed.influx/embed-influxDB.svg)](http://search.maven.org/#artifactdetails%7Cio.apisense.embed.influx%7Cembed-influxDB%7C1.0.0%7Cjar)
 
 # Embedded InfluxDB
 
@@ -9,8 +9,9 @@ Start influx servers at runtime.
 ## Usage
 
 ```java
-package io.apisense.embed.influx;
-
+import io.apisense.embed.influx.InfluxServer;
+import io.apisense.embed.influx.ServerAlreadyRunningException;
+import io.apisense.embed.influx.ServerNotRunningException;
 import io.apisense.embed.influx.configuration.InfluxConfigurationWriter;
 
 import java.io.IOException;

@@ -9,6 +9,7 @@ Start influx servers at runtime.
 ## Usage
 
 ```java
+import de.flapdoodle.embed.process.runtime.Network;
 import io.apisense.embed.influx.InfluxServer;
 import io.apisense.embed.influx.ServerAlreadyRunningException;
 import io.apisense.embed.influx.ServerNotRunningException;
@@ -20,7 +21,8 @@ public class Main {
     public static void main(String[] args) throws IOException, ServerAlreadyRunningException, InterruptedException, ServerNotRunningException {
         InfluxServer.Builder builder = new InfluxServer.Builder();
         // Customize the server configuration, namely used ports
-        builder.setInfluxConfiguration(new InfluxConfigurationWriter(8088, 8086));
+        int freeHttpPort = Network.getFreeServerPort();
+        builder.setInfluxConfiguration(new InfluxConfigurationWriter(8088, freeHttpPort));
         InfluxServer server = builder.build();
         
         server.start();

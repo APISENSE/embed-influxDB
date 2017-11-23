@@ -26,7 +26,7 @@ public enum OSType {
      * @return The value of the currently running {@link OSType}.
      */
     public static OSType getCurrent() {
-        return System.getProperty("os.name").contains("windows") ? OSType.Windows : OSType.Linux;
+        return System.getProperty("os.name").toLowerCase().contains("windows") ? OSType.Windows : OSType.Linux;
     }
 
     public Platform toPlatform() {

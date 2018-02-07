@@ -1,6 +1,7 @@
 [![Travis](https://img.shields.io/travis/APISENSE/embed-influxDB.svg)](https://travis-ci.org/APISENSE/embed-influxDB)
 [![Codecov](https://img.shields.io/codecov/c/github/APISENSE/embed-influxDB.svg)](https://codecov.io/gh/APISENSE/embed-influxDB)
 [![Maven Central](https://img.shields.io/maven-central/v/io.apisense.embed.influx/embed-influxDB.svg)](http://search.maven.org/#artifactdetails%7Cio.apisense.embed.influx%7Cembed-influxDB%7C1.0.0%7Cjar)
+[![Code Climate](https://img.shields.io/codeclimate/github/APISENSE/embed-influxDB.svg)](https://codeclimate.com/github/APISENSE/embed-influxDB)
 
 # Embedded InfluxDB
 

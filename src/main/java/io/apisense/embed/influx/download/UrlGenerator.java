@@ -2,7 +2,6 @@ package io.apisense.embed.influx.download;
 
 import io.apisense.embed.influx.configuration.VersionConfiguration;
 
-import java.io.File;
 import java.net.URL;
 
 /**

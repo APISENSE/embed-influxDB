@@ -14,7 +14,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
-// TODO: fix this suite
 public class InfluxConfigurationWriterTest {
     private int httpPort;
     private int udpPort;
@@ -47,9 +46,9 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(2);
         assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
         onlyLine = content.get(3);
-        assertThat("Our data dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
+        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
         onlyLine = content.get(4);
-        assertThat("Our wal-dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
 
         onlyLine = content.get(5);
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
@@ -113,51 +112,51 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(2);
         assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
         onlyLine = content.get(3);
-        assertThat("Our data dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
+        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
         onlyLine = content.get(4);
-        assertThat("Our wal-dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
 
         onlyLine = content.get(5);
         assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
 
         onlyLine = content.get(6);
-        assertThat("Our test category is present", onlyLine.contains(customCategory), is(true));
-        onlyLine = content.get(7);
-        assertThat("Our first custom configuration is present (key)", onlyLine.contains(firstKey), is(true));
-        assertThat("Our first custom configuration is present (value)", onlyLine.contains(firstValue), is(true));
-        onlyLine = content.get(8);
-        assertThat("Our second custom configuration is present (key)", onlyLine.contains(secondKey), is(true));
-        assertThat("Our second custom configuration is present (value)", onlyLine.contains(secondValue), is(true));
-
-        onlyLine = content.get(9);
-        assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
-
-        onlyLine = content.get(10);
         assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
-        onlyLine = content.get(11);
+        onlyLine = content.get(7);
         assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
 
-        onlyLine = content.get(12);
+        onlyLine = content.get(8);
         assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
 
-        onlyLine = content.get(13);
+        onlyLine = content.get(9);
         assertThat("We have the HTTP Section", onlyLine.contains("[http]"), is(true));
-        onlyLine = content.get(14);
+        onlyLine = content.get(10);
         assertThat("Our http port configuration is present", onlyLine.contains("bind-address"), is(true));
         assertThat("Our http port configuration is present", onlyLine.contains(":" + httpPort), is(true));
 
-        onlyLine = content.get(15);
+        onlyLine = content.get(11);
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
 
-        onlyLine = content.get(16);
+        onlyLine = content.get(12);
         assertThat("We have the UDP Section", onlyLine.contains("[udp]"), is(true));
-        onlyLine = content.get(17);
+        onlyLine = content.get(13);
         assertThat("Our udp enabled configuration key is present", onlyLine.contains(ENABLED_ENTRY), is(true));
         assertThat("Our udp enabled configuration value is present", onlyLine.contains("true"), is(true));
 
-        onlyLine = content.get(18);
+        onlyLine = content.get(14);
         assertThat("Our udp port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
         assertThat("Our udp port configuration value is present", onlyLine.contains(":" + udpPort), is(true));
+
+        onlyLine = content.get(15);
+        assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
+
+        onlyLine = content.get(16);
+        assertThat("Our test category is present", onlyLine.contains(customCategory), is(true));
+        onlyLine = content.get(17);
+        assertThat("Our first custom configuration is present (key)", onlyLine.contains(firstKey), is(true));
+        assertThat("Our first custom configuration is present (value)", onlyLine.contains(firstValue), is(true));
+        onlyLine = content.get(18);
+        assertThat("Our second custom configuration is present (key)", onlyLine.contains(secondKey), is(true));
+        assertThat("Our second custom configuration is present (value)", onlyLine.contains(secondValue), is(true));
     }
 
 }

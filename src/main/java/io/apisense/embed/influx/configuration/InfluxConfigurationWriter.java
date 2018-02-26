@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -41,19 +42,19 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     }
 
     InfluxConfigurationWriter(int backupAndRestorePort, int httpPort, int udpPort, File dataPath, TomlWriter writer) {
-        configMap = new HashMap<>();
+        configMap = new LinkedHashMap<>(); // to add some predictable order when creating config file
         configMap.put(BIND_ADDRESS_ENTRY, ":" + backupAndRestorePort);
+        setDataPath(dataPath);
         configMap.put(HTTP_SECTION, defaultHttpSection(httpPort));
         configMap.put(UDP_SECTION, defaultUdpSection(udpPort));
-        setDataPath(dataPath);
         tomlWriter = writer;
     }
 
     @Override
     public void setDataPath(File dataPath) {
         this.dataPath = dataPath;
-        configMap.put(META_SECTION, defaultMetaSection(dataPath));
         configMap.put(DATA_SECTION, defaultDataSection(dataPath));
+        configMap.put(META_SECTION, defaultMetaSection(dataPath));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     }
 
     private static Map<String, String> defaultUdpSection(int port) {
-        HashMap<String, String> meta = new HashMap<>();
+        LinkedHashMap<String, String> meta = new LinkedHashMap<>();
         meta.put(ENABLED_ENTRY, "true");
         meta.put(BIND_ADDRESS_ENTRY, ":" + port);
         return meta;
@@ -81,7 +82,7 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     }
 
     private static Map<String, String> defaultDataSection(File dataPath) {
-        HashMap<String, String> meta = new HashMap<>();
+        LinkedHashMap<String, String> meta = new LinkedHashMap<>();
         meta.put(DIR_ENTRY, dataPath.getAbsolutePath() + File.separator + "data");
         meta.put(WAL_DIR_ENTRY, dataPath.getAbsolutePath() + File.separator + "wal-dir");
         return meta;

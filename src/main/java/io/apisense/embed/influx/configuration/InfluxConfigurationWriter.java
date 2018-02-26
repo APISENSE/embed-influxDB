@@ -53,8 +53,8 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     @Override
     public void setDataPath(File dataPath) {
         this.dataPath = dataPath;
-        configMap.put(DATA_SECTION, defaultDataSection(dataPath));
         configMap.put(META_SECTION, defaultMetaSection(dataPath));
+        configMap.put(DATA_SECTION, defaultDataSection(dataPath));
     }
 
     @Override

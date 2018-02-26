@@ -44,19 +44,19 @@ public class InfluxConfigurationWriterTest {
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
 
         onlyLine = content.get(2);
-        assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
+        assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
         onlyLine = content.get(3);
         assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
-        onlyLine = content.get(4);
-        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
 
-        onlyLine = content.get(5);
+        onlyLine = content.get(4);
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
 
+        onlyLine = content.get(5);
+        assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
         onlyLine = content.get(6);
-        assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
-        onlyLine = content.get(7);
         assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        onlyLine = content.get(7);
+        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
 
         onlyLine = content.get(8);
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
@@ -110,19 +110,19 @@ public class InfluxConfigurationWriterTest {
         assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
 
         onlyLine = content.get(2);
-        assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
+        assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
         onlyLine = content.get(3);
         assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
-        onlyLine = content.get(4);
-        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
 
-        onlyLine = content.get(5);
+        onlyLine = content.get(4);
         assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
 
+        onlyLine = content.get(5);
+        assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
         onlyLine = content.get(6);
-        assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
-        onlyLine = content.get(7);
         assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        onlyLine = content.get(7);
+        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
 
         onlyLine = content.get(8);
         assertThat("This is an empty line", onlyLine.isEmpty(), is(true));

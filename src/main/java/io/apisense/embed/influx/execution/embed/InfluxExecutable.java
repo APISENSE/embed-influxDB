@@ -10,13 +10,16 @@ import java.io.IOException;
 
 public class InfluxExecutable extends Executable<InfluxExecutableConfig, InfluxProcess> {
 
-    InfluxExecutable(Distribution distribution, InfluxExecutableConfig config,
-                            IRuntimeConfig runtimeConfig, IExtractedFileSet executable) {
+    InfluxExecutable(Distribution distribution,
+                     InfluxExecutableConfig config,
+                     IRuntimeConfig runtimeConfig,
+                     IExtractedFileSet executable) {
         super(distribution, config, runtimeConfig, executable);
     }
 
     @Override
-    protected InfluxProcess start(Distribution distribution, InfluxExecutableConfig config,
+    protected InfluxProcess start(Distribution distribution,
+                                  InfluxExecutableConfig config,
                                   IRuntimeConfig runtime) throws IOException {
         return new InfluxProcess(distribution, config, runtime, this);
     }

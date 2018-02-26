@@ -20,9 +20,11 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     public static final String META_SECTION = "meta";
     public static final String DATA_SECTION = "data";
     public static final String HTTP_SECTION = "http";
+    public static final String UDP_SECTION = "udp";
 
     // Entries
     public static final String BIND_ADDRESS_ENTRY = "bind-address";
+    public static final String ENABLED_ENTRY = "enabled";
     public static final String DIR_ENTRY = "dir";
     public static final String WAL_DIR_ENTRY = "wal-dir";
 
@@ -30,18 +32,19 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     private final TomlWriter tomlWriter;
     private File dataPath;
 
-    public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort) throws IOException {
-        this(backupAndRestorePort, httpPort, Files.createTempDir(new PropertyOrPlatformTempDir(), "embedded-influx-data"));
+    public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort, int udpPort) throws IOException {
+        this(backupAndRestorePort, httpPort, udpPort, Files.createTempDir(new PropertyOrPlatformTempDir(), "embedded-influx-data"));
     }
 
-    public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort, File dataPath) {
-        this(backupAndRestorePort, httpPort, dataPath, new TomlWriter());
+    public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort, int udpPort, File dataPath) {
+        this(backupAndRestorePort, httpPort, udpPort, dataPath, new TomlWriter());
     }
 
-    InfluxConfigurationWriter(int backupAndRestorePort, int port, File dataPath, TomlWriter writer) {
+    InfluxConfigurationWriter(int backupAndRestorePort, int httpPort, int udpPort, File dataPath, TomlWriter writer) {
         configMap = new HashMap<>();
         configMap.put(BIND_ADDRESS_ENTRY, ":" + backupAndRestorePort);
-        configMap.put(HTTP_SECTION, defaultHttpSection(port));
+        configMap.put(HTTP_SECTION, defaultHttpSection(httpPort));
+        configMap.put(UDP_SECTION, defaultUdpSection(udpPort));
         setDataPath(dataPath);
         tomlWriter = writer;
     }
@@ -60,6 +63,13 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
 
     private static Map<String, String> defaultHttpSection(int port) {
         HashMap<String, String> meta = new HashMap<>();
+        meta.put(BIND_ADDRESS_ENTRY, ":" + port);
+        return meta;
+    }
+
+    private static Map<String, String> defaultUdpSection(int port) {
+        HashMap<String, String> meta = new HashMap<>();
+        meta.put(ENABLED_ENTRY, "true");
         meta.put(BIND_ADDRESS_ENTRY, ":" + port);
         return meta;
     }

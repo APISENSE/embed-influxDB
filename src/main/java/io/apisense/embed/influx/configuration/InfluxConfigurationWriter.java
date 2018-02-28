@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,8 +25,8 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     public static final String UDP_SECTION = "udp";
 
     // Entries
-    public static final String BIND_ADDRESS_ENTRY = "bind-address";
     public static final String ENABLED_ENTRY = "enabled";
+    public static final String BIND_ADDRESS_ENTRY = "bind-address";
     public static final String DIR_ENTRY = "dir";
     public static final String WAL_DIR_ENTRY = "wal-dir";
     public static final String DATABASE_ENTRY = "database";
@@ -33,6 +34,10 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     private final Map<String, Object> configMap;
     private final TomlWriter tomlWriter;
     private File dataPath;
+
+    public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort) throws IOException {
+        this(backupAndRestorePort, httpPort, -1, Files.createTempDir(new PropertyOrPlatformTempDir(), "embedded-influx-data"));
+    }
 
     public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort, int udpPort) throws IOException {
         this(backupAndRestorePort, httpPort, udpPort, Files.createTempDir(new PropertyOrPlatformTempDir(), "embedded-influx-data"));
@@ -47,7 +52,11 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
         configMap.put(BIND_ADDRESS_ENTRY, ":" + backupAndRestorePort);
         setDataPath(dataPath);
         configMap.put(HTTP_SECTION, defaultHttpSection(httpPort));
-        configMap.put(UDP_SECTION, defaultUdpSection(udpPort));
+
+        if (udpPort != -1) {
+            configMap.put(UDP_SECTION, Collections.singletonList(defaultUdpSection(udpPort))); // create [[..]]
+        }
+
         tomlWriter = writer;
     }
 
@@ -70,9 +79,9 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     }
 
     // make it configurable in future
-    private static Map<String, String> defaultUdpSection(int port) {
-        LinkedHashMap<String, String> meta = new LinkedHashMap<>();
-        meta.put(ENABLED_ENTRY, "true");
+    private static Map<String, Object> defaultUdpSection(int port) {
+        LinkedHashMap<String, Object> meta = new LinkedHashMap<>();
+        meta.put(ENABLED_ENTRY, true);
         meta.put(BIND_ADDRESS_ENTRY, ":" + port);
         meta.put(DATABASE_ENTRY, "udp");
         return meta;
@@ -103,6 +112,9 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
         File configFile = File.createTempFile("influxdb.config", Long.toString(System.nanoTime()));
         logger.debug("Writing configuration file into: " + configFile.getAbsolutePath());
         tomlWriter.write(configMap, configFile);
+
+        String debugString = tomlWriter.write(configMap);
+        System.out.println(debugString);
         return configFile;
     }
 }

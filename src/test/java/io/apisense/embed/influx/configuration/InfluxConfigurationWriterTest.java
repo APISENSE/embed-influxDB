@@ -35,7 +35,7 @@ public class InfluxConfigurationWriterTest {
         List<String> content = Files.readAllLines(file.toPath());
         file.delete();
 
-        assertThat("We have a line in the file", content.size(), equalTo(15));
+        assertThat("We have a line in the file", content.size(), equalTo(16));
         String onlyLine = content.get(0);
         assertThat("Our backup port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
         assertThat("Our backup port configuration value is present", onlyLine.contains(":" + backupAndRestorePort), is(true));
@@ -79,6 +79,10 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(14);
         assertThat("Our udp port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
         assertThat("Our udp port configuration value is present", onlyLine.contains(":" + udpPort), is(true));
+
+        onlyLine = content.get(15);
+        assertThat("Our udp database configuration key is present", onlyLine.contains(DATABASE_ENTRY), is(true));
+        assertThat("Our udp database configuration value is present", onlyLine.contains("udp"), is(true));
     }
 
     @Test
@@ -101,7 +105,7 @@ public class InfluxConfigurationWriterTest {
         List<String> content = Files.readAllLines(file.toPath());
         file.delete();
 
-        assertThat("We have a line in the file", content.size(), equalTo(19));
+        assertThat("We have a line in the file", content.size(), equalTo(20));
         String onlyLine = content.get(0);
         assertThat("Our backup port configuration is present", onlyLine.contains("bind-address"), is(true));
         assertThat("Our backup port configuration is present", onlyLine.contains(":" + backupAndRestorePort), is(true));
@@ -147,14 +151,18 @@ public class InfluxConfigurationWriterTest {
         assertThat("Our udp port configuration value is present", onlyLine.contains(":" + udpPort), is(true));
 
         onlyLine = content.get(15);
-        assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
+        assertThat("Our udp database configuration key is present", onlyLine.contains(DATABASE_ENTRY), is(true));
+        assertThat("Our udp database configuration value is present", onlyLine.contains("udp"), is(true));
 
         onlyLine = content.get(16);
-        assertThat("Our test category is present", onlyLine.contains(customCategory), is(true));
+        assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
+
         onlyLine = content.get(17);
+        assertThat("Our test category is present", onlyLine.contains(customCategory), is(true));
+        onlyLine = content.get(18);
         assertThat("Our first custom configuration is present (key)", onlyLine.contains(firstKey), is(true));
         assertThat("Our first custom configuration is present (value)", onlyLine.contains(firstValue), is(true));
-        onlyLine = content.get(18);
+        onlyLine = content.get(19);
         assertThat("Our second custom configuration is present (key)", onlyLine.contains(secondKey), is(true));
         assertThat("Our second custom configuration is present (value)", onlyLine.contains(secondValue), is(true));
     }

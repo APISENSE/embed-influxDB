@@ -28,6 +28,7 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
     public static final String ENABLED_ENTRY = "enabled";
     public static final String DIR_ENTRY = "dir";
     public static final String WAL_DIR_ENTRY = "wal-dir";
+    public static final String DATABASE_ENTRY = "database";
 
     private final Map<String, Object> configMap;
     private final TomlWriter tomlWriter;
@@ -68,10 +69,12 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
         return meta;
     }
 
+    // make it configurable in future
     private static Map<String, String> defaultUdpSection(int port) {
         LinkedHashMap<String, String> meta = new LinkedHashMap<>();
         meta.put(ENABLED_ENTRY, "true");
         meta.put(BIND_ADDRESS_ENTRY, ":" + port);
+        meta.put(DATABASE_ENTRY, "udp");
         return meta;
     }
 

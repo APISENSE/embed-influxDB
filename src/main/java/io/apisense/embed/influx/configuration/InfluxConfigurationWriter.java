@@ -112,9 +112,6 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
         File configFile = File.createTempFile("influxdb.config", Long.toString(System.nanoTime()));
         logger.debug("Writing configuration file into: " + configFile.getAbsolutePath());
         tomlWriter.write(configMap, configFile);
-
-        String debugString = tomlWriter.write(configMap);
-        System.out.println(debugString);
         return configFile;
     }
 }

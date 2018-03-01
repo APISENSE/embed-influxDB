@@ -167,4 +167,44 @@ public class InfluxConfigurationWriterTest {
         assertThat("Our second custom configuration is present (value)", onlyLine.contains(secondValue), is(true));
     }
 
+    @Test
+    public void TestGeneratingWithoutUDPSection() throws Exception {
+        config = new InfluxConfigurationWriter(backupAndRestorePort, httpPort);
+        File file = config.writeFile();
+        List<String> content = Files.readAllLines(file.toPath());
+        file.delete();
+
+        assertThat("We have a line in the file", content.size(), equalTo(11));
+        String onlyLine = content.get(0);
+        assertThat("Our backup port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
+        assertThat("Our backup port configuration value is present", onlyLine.contains(":" + backupAndRestorePort), is(true));
+
+        onlyLine = content.get(1);
+        assertThat("This line is empty", onlyLine.isEmpty(), is(true));
+
+        onlyLine = content.get(2);
+        assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
+        onlyLine = content.get(3);
+        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+
+        onlyLine = content.get(4);
+        assertThat("This line is empty", onlyLine.isEmpty(), is(true));
+
+        onlyLine = content.get(5);
+        assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
+        onlyLine = content.get(6);
+        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        onlyLine = content.get(7);
+        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
+
+        onlyLine = content.get(8);
+        assertThat("This line is empty", onlyLine.isEmpty(), is(true));
+
+        onlyLine = content.get(9);
+        assertThat("We have the HTTP Section", onlyLine.contains("[http]"), is(true));
+        onlyLine = content.get(10);
+        assertThat("Our http port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
+        assertThat("Our http port configuration value is present", onlyLine.contains(":" + httpPort), is(true));
+    }
+
 }

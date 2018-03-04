@@ -1,5 +1,6 @@
 package io.apisense.embed.influx.configuration;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,7 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.apisense.embed.influx.configuration.InfluxConfigurationWriter.*;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.BIND_ADDRESS;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.DATABASE;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.DIR;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.ENABLED;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.WAL_DIR;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -21,24 +26,77 @@ public class InfluxConfigurationWriterTest {
     private int backupAndRestorePort;
 
     private InfluxConfigurationWriter config;
+    private File dataPath;
 
     @Before
     public void setUp() throws Exception {
         httpPort = 1234;
         udpPort = 4312;
         backupAndRestorePort = 4321;
-        config = new InfluxConfigurationWriter(backupAndRestorePort, httpPort, udpPort);
+        dataPath = File.createTempFile("data-path", Long.toString(System.nanoTime()));
+        config = new InfluxConfigurationWriter.Builder()
+                .setBackupAndRestorePort(backupAndRestorePort)
+                .setDataPath(dataPath)
+                .setHttpPort(httpPort)
+                .setUdpPort(udpPort)
+                .build();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        dataPath.delete();
     }
 
     @Test
     public void TestDefaultGeneration() throws Exception {
+        ConfigurationWriter defaultConfig = new InfluxConfigurationWriter.Builder().build();
+        File file = defaultConfig.writeFile();
+        List<String> content = Files.readAllLines(file.toPath());
+        file.delete();
+        defaultConfig.getDataPath().delete();
+
+        assertThat("We have a line in the file", content.size(), equalTo(11));
+        String onlyLine = content.get(0);
+        assertThat("Our backup port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
+        assertThat("Our backup port configuration default value is present", onlyLine.contains(":" + 8088), is(true));
+
+        onlyLine = content.get(1);
+        assertThat("This line is empty", onlyLine.isEmpty(), is(true));
+
+        onlyLine = content.get(2);
+        assertThat("We have the HTTP Section", onlyLine.contains("[http]"), is(true));
+        onlyLine = content.get(3);
+        assertThat("Our http port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
+        assertThat("Our http port configuration default value is present", onlyLine.contains(":" + 8086), is(true));
+
+        onlyLine = content.get(4);
+        assertThat("This line is empty", onlyLine.isEmpty(), is(true));
+
+        onlyLine = content.get(5);
+        assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
+        onlyLine = content.get(6);
+        assertThat("Our data dir key is present", onlyLine.contains(DIR.toString()), is(true));
+
+        onlyLine = content.get(7);
+        assertThat("This line is empty", onlyLine.isEmpty(), is(true));
+
+        onlyLine = content.get(8);
+        assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
+        onlyLine = content.get(9);
+        assertThat("Our data dir key is present", onlyLine.contains(DIR.toString()), is(true));
+        onlyLine = content.get(10);
+        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR.toString()), is(true));
+    }
+
+    @Test
+    public void TestCompleteGeneration() throws Exception {
         File file = config.writeFile();
         List<String> content = Files.readAllLines(file.toPath());
         file.delete();
 
         assertThat("We have a line in the file", content.size(), equalTo(16));
         String onlyLine = content.get(0);
-        assertThat("Our backup port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
+        assertThat("Our backup port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our backup port configuration value is present", onlyLine.contains(":" + backupAndRestorePort), is(true));
 
         onlyLine = content.get(1);
@@ -47,7 +105,7 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(2);
         assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
         onlyLine = content.get(3);
-        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        assertThat("Our data dir key is present", onlyLine.contains(DIR.toString()), is(true));
 
         onlyLine = content.get(4);
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
@@ -55,9 +113,9 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(5);
         assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
         onlyLine = content.get(6);
-        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        assertThat("Our data dir key is present", onlyLine.contains(DIR.toString()), is(true));
         onlyLine = content.get(7);
-        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
+        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR.toString()), is(true));
 
         onlyLine = content.get(8);
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
@@ -65,7 +123,7 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(9);
         assertThat("We have the HTTP Section", onlyLine.contains("[http]"), is(true));
         onlyLine = content.get(10);
-        assertThat("Our http port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
+        assertThat("Our http port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our http port configuration value is present", onlyLine.contains(":" + httpPort), is(true));
 
         onlyLine = content.get(11);
@@ -74,14 +132,14 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(12);
         assertThat("We have the UDP Section", onlyLine.contains("[udp]"), is(true));
         onlyLine = content.get(13);
-        assertEquals("Our udp enabled configuration is present", onlyLine, ENABLED_ENTRY + " = true" );
+        assertEquals("Our udp enabled configuration is present", onlyLine, ENABLED + " = true");
 
         onlyLine = content.get(14);
-        assertThat("Our udp port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
+        assertThat("Our udp port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our udp port configuration value is present", onlyLine.contains(":" + udpPort), is(true));
 
         onlyLine = content.get(15);
-        assertThat("Our udp database configuration key is present", onlyLine.contains(DATABASE_ENTRY), is(true));
+        assertThat("Our udp database configuration key is present", onlyLine.contains(DATABASE.toString()), is(true));
         assertThat("Our udp database configuration value is present", onlyLine.contains("udp"), is(true));
     }
 
@@ -107,7 +165,7 @@ public class InfluxConfigurationWriterTest {
 
         assertThat("We have a line in the file", content.size(), equalTo(20));
         String onlyLine = content.get(0);
-        assertThat("Our backup port configuration is present", onlyLine.contains("bind-address"), is(true));
+        assertThat("Our backup port configuration is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our backup port configuration is present", onlyLine.contains(":" + backupAndRestorePort), is(true));
 
         onlyLine = content.get(1);
@@ -116,7 +174,7 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(2);
         assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
         onlyLine = content.get(3);
-        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        assertThat("Our data dir key is present", onlyLine.contains(DIR.toString()), is(true));
 
         onlyLine = content.get(4);
         assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
@@ -124,9 +182,9 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(5);
         assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
         onlyLine = content.get(6);
-        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        assertThat("Our data dir key is present", onlyLine.contains(DIR.toString()), is(true));
         onlyLine = content.get(7);
-        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
+        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR.toString()), is(true));
 
         onlyLine = content.get(8);
         assertThat("This is an empty line", onlyLine.isEmpty(), is(true));
@@ -134,7 +192,7 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(9);
         assertThat("We have the HTTP Section", onlyLine.contains("[http]"), is(true));
         onlyLine = content.get(10);
-        assertThat("Our http port configuration is present", onlyLine.contains("bind-address"), is(true));
+        assertThat("Our http port configuration is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our http port configuration is present", onlyLine.contains(":" + httpPort), is(true));
 
         onlyLine = content.get(11);
@@ -143,15 +201,15 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(12);
         assertThat("We have the UDP Section", onlyLine.contains("[udp]"), is(true));
         onlyLine = content.get(13);
-        assertThat("Our udp enabled configuration key is present", onlyLine.contains(ENABLED_ENTRY), is(true));
+        assertThat("Our udp enabled configuration key is present", onlyLine.contains(ENABLED.toString()), is(true));
         assertThat("Our udp enabled configuration value is present", onlyLine.contains("true"), is(true));
 
         onlyLine = content.get(14);
-        assertThat("Our udp port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
+        assertThat("Our udp port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our udp port configuration value is present", onlyLine.contains(":" + udpPort), is(true));
 
         onlyLine = content.get(15);
-        assertThat("Our udp database configuration key is present", onlyLine.contains(DATABASE_ENTRY), is(true));
+        assertThat("Our udp database configuration key is present", onlyLine.contains(DATABASE.toString()), is(true));
         assertThat("Our udp database configuration value is present", onlyLine.contains("udp"), is(true));
 
         onlyLine = content.get(16);
@@ -169,14 +227,18 @@ public class InfluxConfigurationWriterTest {
 
     @Test
     public void TestGeneratingWithoutUDPSection() throws Exception {
-        config = new InfluxConfigurationWriter(backupAndRestorePort, httpPort);
+        config = new InfluxConfigurationWriter.Builder()
+                .setDataPath(dataPath)
+                .setBackupAndRestorePort(backupAndRestorePort)
+                .setHttpPort(httpPort)
+                .build();
         File file = config.writeFile();
         List<String> content = Files.readAllLines(file.toPath());
         file.delete();
 
         assertThat("We have a line in the file", content.size(), equalTo(11));
         String onlyLine = content.get(0);
-        assertThat("Our backup port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
+        assertThat("Our backup port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our backup port configuration value is present", onlyLine.contains(":" + backupAndRestorePort), is(true));
 
         onlyLine = content.get(1);
@@ -185,7 +247,7 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(2);
         assertThat("We have the meta Section", onlyLine.contains("[meta]"), is(true));
         onlyLine = content.get(3);
-        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        assertThat("Our data dir key is present", onlyLine.contains(DIR.toString()), is(true));
 
         onlyLine = content.get(4);
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
@@ -193,9 +255,9 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(5);
         assertThat("We have the data Section", onlyLine.contains("[data]"), is(true));
         onlyLine = content.get(6);
-        assertThat("Our data dir key is present", onlyLine.contains(DIR_ENTRY), is(true));
+        assertThat("Our data dir key is present", onlyLine.contains(DIR.toString()), is(true));
         onlyLine = content.get(7);
-        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR_ENTRY), is(true));
+        assertThat("Our wal-dir key is present", onlyLine.contains(WAL_DIR.toString()), is(true));
 
         onlyLine = content.get(8);
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
@@ -203,7 +265,7 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(9);
         assertThat("We have the HTTP Section", onlyLine.contains("[http]"), is(true));
         onlyLine = content.get(10);
-        assertThat("Our http port configuration key is present", onlyLine.contains(BIND_ADDRESS_ENTRY), is(true));
+        assertThat("Our http port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our http port configuration value is present", onlyLine.contains(":" + httpPort), is(true));
     }
 

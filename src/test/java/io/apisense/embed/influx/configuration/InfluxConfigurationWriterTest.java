@@ -10,7 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.*;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.AUTH_ENABLED;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.DIR;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.ENABLED;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.WAL_DIR;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.BIND_ADDRESS;
+import static io.apisense.embed.influx.configuration.server.ConfigurationProperty.DATABASE;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;

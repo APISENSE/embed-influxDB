@@ -1,70 +1,80 @@
 package io.apisense.embed.influx.configuration;
 
 import com.moandjiezana.toml.TomlWriter;
-import de.flapdoodle.embed.process.io.directories.PropertyOrPlatformTempDir;
-import de.flapdoodle.embed.process.io.file.Files;
+import io.apisense.embed.influx.configuration.server.ConfigurationProperty;
+import io.apisense.embed.influx.configuration.server.ConfigurationSection;
+import io.apisense.embed.influx.configuration.server.DataConfigurationSection;
+import io.apisense.embed.influx.configuration.server.HeadConfigurationSection;
+import io.apisense.embed.influx.configuration.server.HttpConfigurationSection;
+import io.apisense.embed.influx.configuration.server.MetaConfigurationSection;
+import io.apisense.embed.influx.configuration.server.UdpConfigurationSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
+import java.nio.file.Files;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Default implementation of a {@link ConfigurationWriter}.
  */
-public class InfluxConfigurationWriter implements ConfigurationWriter {
+public final class InfluxConfigurationWriter implements ConfigurationWriter {
     private static final Logger logger = LoggerFactory.getLogger(InfluxConfigurationWriter.class.getName());
-    // Sections
-    public static final String META_SECTION = "meta";
-    public static final String DATA_SECTION = "data";
-    public static final String HTTP_SECTION = "http";
-    public static final String UDP_SECTION = "udp";
-
-    // Entries
-    public static final String ENABLED_ENTRY = "enabled";
-    public static final String BIND_ADDRESS_ENTRY = "bind-address";
-    public static final String DIR_ENTRY = "dir";
-    public static final String WAL_DIR_ENTRY = "wal-dir";
-    public static final String DATABASE_ENTRY = "database";
 
     private final Map<String, Object> configMap;
     private final TomlWriter tomlWriter;
     private File dataPath;
 
-    public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort) throws IOException {
-        this(backupAndRestorePort, httpPort, -1, Files.createTempDir(new PropertyOrPlatformTempDir(), "embedded-influx-data"));
+    InfluxConfigurationWriter(Set<ConfigurationSection> configurationSections, File dataPath, TomlWriter writer) {
+        this.dataPath = dataPath;
+        this.tomlWriter = writer;
+        this.configMap = inflateConfigurationMap(configurationSections);
     }
 
-    public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort, int udpPort) throws IOException {
-        this(backupAndRestorePort, httpPort, udpPort, Files.createTempDir(new PropertyOrPlatformTempDir(), "embedded-influx-data"));
-    }
+    /**
+     * Build a configuration map in order to inflate a Toml configuration file.
+     * The provided section with a null name will be added before others in order to fall under no section.
+     *
+     * @param configurationSections The set of sections to add to our configuration map.
+     * @return The inflated {@link Map}.
+     */
+    private static Map<String, Object> inflateConfigurationMap(Set<ConfigurationSection> configurationSections) {
+        Map<String, Object> configMap = new LinkedHashMap<>(); // to add some predictable order when creating config file
 
-    public InfluxConfigurationWriter(int backupAndRestorePort, int httpPort, int udpPort, File dataPath) {
-        this(backupAndRestorePort, httpPort, udpPort, dataPath, new TomlWriter());
-    }
-
-    InfluxConfigurationWriter(int backupAndRestorePort, int httpPort, int udpPort, File dataPath, TomlWriter writer) {
-        configMap = new LinkedHashMap<>(); // to add some predictable order when creating config file
-        configMap.put(BIND_ADDRESS_ENTRY, ":" + backupAndRestorePort);
-        setDataPath(dataPath);
-        configMap.put(HTTP_SECTION, defaultHttpSection(httpPort));
-
-        if (udpPort != -1) {
-            configMap.put(UDP_SECTION, Collections.singletonList(defaultUdpSection(udpPort))); // create [[..]]
+        // We are looping a first time to find every section without name,
+        // For those sections we put all the defined properties as is in the configuration file.
+        // We have to do it before to not fall under an existing section.
+        for (ConfigurationSection configurationSection : configurationSections) {
+            if (configurationSection.getName() == null) {
+                addConfigProperties(configurationSection, configMap);
+            }
         }
 
-        tomlWriter = writer;
+        // We can then process all the named sections.
+        for (ConfigurationSection configurationSection : configurationSections) {
+            if (configurationSection.getName() != null) {
+                configMap.put(configurationSection.getName(), configurationSection.getConfiguration());
+            }
+        }
+
+        return configMap;
     }
 
-    @Override
-    public void setDataPath(File dataPath) {
-        this.dataPath = dataPath;
-        configMap.put(META_SECTION, defaultMetaSection(dataPath));
-        configMap.put(DATA_SECTION, defaultDataSection(dataPath));
+    /**
+     * Break down the given section to add its properties one by one.
+     *
+     * @param configurationSection The section to add.
+     * @param configMap            The map to add the section into.
+     */
+    private static void addConfigProperties(ConfigurationSection configurationSection, Map<String, Object> configMap) {
+        Map<ConfigurationProperty, Object> configuration = configurationSection.getConfiguration();
+        for (ConfigurationProperty configurationProperty : configuration.keySet()) {
+            configMap.put(configurationProperty.toString(), configuration.get(configurationProperty));
+        }
     }
 
     @Override
@@ -72,39 +82,9 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
         return dataPath;
     }
 
-    private static Map<String, String> defaultHttpSection(int port) {
-        HashMap<String, String> meta = new HashMap<>();
-        meta.put(BIND_ADDRESS_ENTRY, ":" + port);
-        return meta;
-    }
-
-    // make it configurable in future
-    private static Map<String, Object> defaultUdpSection(int port) {
-        LinkedHashMap<String, Object> meta = new LinkedHashMap<>();
-        meta.put(ENABLED_ENTRY, true);
-        meta.put(BIND_ADDRESS_ENTRY, ":" + port);
-        meta.put(DATABASE_ENTRY, "udp");
-        return meta;
-    }
-
-    private static Map<String, String> defaultMetaSection(File dataPath) {
-        HashMap<String, String> meta = new HashMap<>();
-        meta.put(DIR_ENTRY, dataPath.getAbsolutePath() + File.separator + "meta");
-        return meta;
-    }
-
-    private static Map<String, String> defaultDataSection(File dataPath) {
-        LinkedHashMap<String, String> meta = new LinkedHashMap<>();
-        meta.put(DIR_ENTRY, dataPath.getAbsolutePath() + File.separator + "data");
-        meta.put(WAL_DIR_ENTRY, dataPath.getAbsolutePath() + File.separator + "wal-dir");
-        return meta;
-    }
-
     @Override
     public void addStatements(Map<String, Object> config) {
-        for (String key : config.keySet()) {
-            this.configMap.put(key, config.get(key));
-        }
+        this.configMap.putAll(config);
     }
 
     @Override
@@ -113,5 +93,75 @@ public class InfluxConfigurationWriter implements ConfigurationWriter {
         logger.debug("Writing configuration file into: " + configFile.getAbsolutePath());
         tomlWriter.write(configMap, configFile);
         return configFile;
+    }
+
+    /**
+     * Build an {@link InfluxConfigurationWriter}.
+     */
+    public static final class Builder {
+        private Set<ConfigurationSection> configuration;
+        private TomlWriter writer = new TomlWriter();
+        private File dataPath = null;
+
+        public Builder() {
+            configuration = new LinkedHashSet<>();
+
+            // Default configuration
+            setBackupAndRestorePort(8088);
+            setHttpPort(8086);
+        }
+
+        public InfluxConfigurationWriter build() {
+            if (dataPath == null) {
+                try {
+                    File tempFile = Files
+                            .createTempDirectory("embed-influx-data-" + Long.toString(System.nanoTime()))
+                            .toFile();
+                    setDataPath(tempFile);
+                } catch (IOException e) {
+                    throw new RuntimeException("Unable to create default data path", e);
+                }
+            }
+            return new InfluxConfigurationWriter(configuration, dataPath, writer);
+        }
+
+        public Builder setHttpPort(int httpPort) {
+            addSection(new HttpConfigurationSection(httpPort));
+            return this;
+        }
+
+        public Builder setBackupAndRestorePort(int backupAndRestorePort) {
+            addSection(new HeadConfigurationSection(backupAndRestorePort));
+            return this;
+        }
+
+        public Builder setUdpPort(int udpPort) {
+            addSection(new UdpConfigurationSection(udpPort));
+            return this;
+        }
+
+        public Builder setDataPath(File dataPath) {
+            this.dataPath = dataPath;
+            addSection(new MetaConfigurationSection(dataPath));
+            addSection(new DataConfigurationSection(dataPath));
+            return this;
+        }
+
+        /**
+         * Add a customized section to the current configuration.
+         *
+         * @param section The {@link ConfigurationSection} to add.
+         * @return The current {@link Builder}.
+         */
+        public Builder addSection(ConfigurationSection section) {
+            configuration.remove(section);
+            configuration.add(section);
+            return this;
+        }
+
+        public Builder setWriter(TomlWriter writer) {
+            this.writer = writer;
+            return this;
+        }
     }
 }

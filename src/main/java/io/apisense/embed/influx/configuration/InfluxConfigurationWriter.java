@@ -1,13 +1,13 @@
 package io.apisense.embed.influx.configuration;
 
 import com.moandjiezana.toml.TomlWriter;
-import io.apisense.embed.influx.configuration.server.ConfigurationProperty;
 import io.apisense.embed.influx.configuration.server.ConfigurationSection;
-import io.apisense.embed.influx.configuration.server.DataConfigurationSection;
-import io.apisense.embed.influx.configuration.server.HeadConfigurationSection;
 import io.apisense.embed.influx.configuration.server.HttpConfigurationSection;
 import io.apisense.embed.influx.configuration.server.MetaConfigurationSection;
 import io.apisense.embed.influx.configuration.server.UdpConfigurationSection;
+import io.apisense.embed.influx.configuration.server.ConfigurationProperty;
+import io.apisense.embed.influx.configuration.server.HeadConfigurationSection;
+import io.apisense.embed.influx.configuration.server.DataConfigurationSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +108,7 @@ public final class InfluxConfigurationWriter implements ConfigurationWriter {
 
             // Default configuration
             setBackupAndRestorePort(8088);
-            setHttpPort(8086);
+            setHttp(8086);
         }
 
         public InfluxConfigurationWriter build() {
@@ -125,21 +125,69 @@ public final class InfluxConfigurationWriter implements ConfigurationWriter {
             return new InfluxConfigurationWriter(configuration, dataPath, writer);
         }
 
-        public Builder setHttpPort(int httpPort) {
-            addSection(new HttpConfigurationSection(httpPort));
+        /**
+         * Add HTTP section with defined port
+         *
+         * @param httpPort - port number
+         * @return The current {@link Builder}.
+         */
+        public Builder setHttp(int httpPort) {
+            addSection(new HttpConfigurationSection(httpPort, false));
             return this;
         }
 
+        /**
+         * Add HTTP section with defined port and auth enabled
+         *
+         * @param httpPort - port number
+         * @param auth - flag to enable/disable auth
+         * @return The current {@link Builder}.
+         */
+        public Builder setHttp(int httpPort, boolean auth) {
+            addSection(new HttpConfigurationSection(httpPort, auth));
+            return this;
+        }
+
+        /**
+         * Add BackupAndRestore section with defined port
+         *
+         * @param backupAndRestorePort - port number
+         * @return The current {@link Builder}.
+         */
         public Builder setBackupAndRestorePort(int backupAndRestorePort) {
             addSection(new HeadConfigurationSection(backupAndRestorePort));
             return this;
         }
 
-        public Builder setUdpPort(int udpPort) {
-            addSection(new UdpConfigurationSection(udpPort));
+        /**
+         * Add UDP section with defined port
+         *
+         * @param udpPort - port number
+         * @return The current {@link Builder}.
+         */
+        public Builder setUdp(int udpPort) {
+            addSection(new UdpConfigurationSection(udpPort, "udp"));
             return this;
         }
 
+        /**
+         * Add HTTP section with defined port and auth enabled
+         *
+         * @param udpPort - port number
+         * @param database - name for UDP database
+         * @return The current {@link Builder}.
+         */
+        public Builder setUdp(int udpPort, String database) {
+            addSection(new UdpConfigurationSection(udpPort, database));
+            return this;
+        }
+
+        /**
+         * Add data and meta sections.
+         *
+         * @param dataPath - path to data location
+         * @return The current {@link Builder}.
+         */
         public Builder setDataPath(File dataPath) {
             this.dataPath = dataPath;
             addSection(new MetaConfigurationSection(dataPath));

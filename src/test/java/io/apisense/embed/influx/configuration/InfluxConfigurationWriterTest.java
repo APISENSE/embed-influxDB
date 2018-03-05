@@ -226,13 +226,13 @@ public class InfluxConfigurationWriterTest {
         config = new InfluxConfigurationWriter.Builder()
                 .setDataPath(dataPath)
                 .setBackupAndRestorePort(backupAndRestorePort)
-                .setHttp(httpPort)
+                .setHttp(httpPort, true)
                 .build();
         File file = config.writeFile();
         List<String> content = Files.readAllLines(file.toPath());
         file.delete();
 
-        assertThat("We have a line in the file", content.size(), equalTo(11));
+        assertThat("We have a line in the file", content.size(), equalTo(12));
         String onlyLine = content.get(0);
         assertThat("Our backup port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our backup port configuration value is present", onlyLine.contains(":" + backupAndRestorePort), is(true));
@@ -263,6 +263,11 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(10);
         assertThat("Our http port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));
         assertThat("Our http port configuration value is present", onlyLine.contains(":" + httpPort), is(true));
+
+        onlyLine = content.get(11);
+        assertThat("Our http auth configuration key is present", onlyLine.contains(AUTH_ENABLED.toString()), is(true));
+        assertThat("Our http auth configuration value is present", onlyLine.contains("true"), is(true));
+
     }
 
 }

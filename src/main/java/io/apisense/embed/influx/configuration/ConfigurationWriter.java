@@ -27,13 +27,6 @@ public interface ConfigurationWriter {
     File writeFile() throws IOException;
 
     /**
-     * Set the dataPath to use.
-     *
-     * @param dataPath The path under which data will be written.
-     */
-    void setDataPath(File dataPath);
-
-    /**
      * Retrieve the previously set dataPath.
      *
      * @return The path under which data will be written.

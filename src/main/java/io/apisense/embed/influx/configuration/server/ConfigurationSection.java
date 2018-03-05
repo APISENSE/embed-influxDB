@@ -6,6 +6,7 @@ import java.util.Map;
  * Define the behavior of an InfluxDB server configuration section.
  */
 public interface ConfigurationSection {
+
     /**
      * Return the section name.
      *

@@ -8,7 +8,8 @@ public enum ConfigurationProperty {
     DIR("dir"),
     WAL_DIR("wal-dir"),
     ENABLED("enabled"),
-    DATABASE("database");
+    DATABASE("database"),
+    AUTH_ENABLED("auth-enabled");
 
     private final String value;
 

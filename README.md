@@ -28,8 +28,8 @@ public class Main {
         // configuration to start InfluxDB server with HTTP on port `freeHttpPort`
         // and default backup restore port
         InfluxConfigurationWriter influxConfig = new InfluxConfigurationWriter.Builder()
-            .setHttpPort(freeHttpPort)
-            .setUdpPort(freeUdpPort) // If you happen to need udp enabled
+            .setHttp(freeHttpPort) // by default auth is disabled
+            .setUdp(freeUdpPort) // If you happen to need udp enabled, by default to 'udp' database
             .build();
         
         builder.setInfluxConfiguration(influxConfig); // let's start both of protocols, HTTP and UDP

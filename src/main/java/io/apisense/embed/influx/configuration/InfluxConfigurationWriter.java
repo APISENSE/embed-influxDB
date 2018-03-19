@@ -8,16 +8,17 @@ import io.apisense.embed.influx.configuration.server.UdpConfigurationSection;
 import io.apisense.embed.influx.configuration.server.ConfigurationProperty;
 import io.apisense.embed.influx.configuration.server.HeadConfigurationSection;
 import io.apisense.embed.influx.configuration.server.DataConfigurationSection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Default implementation of a {@link ConfigurationWriter}.
@@ -57,7 +58,11 @@ public final class InfluxConfigurationWriter implements ConfigurationWriter {
         // We can then process all the named sections.
         for (ConfigurationSection configurationSection : configurationSections) {
             if (configurationSection.getName() != null) {
-                configMap.put(configurationSection.getName(), configurationSection.getConfiguration());
+                if (configurationSection.isArray()) {
+                    configMap.put(configurationSection.getName(), Collections.singletonList(configurationSection.getConfiguration()));
+                } else {
+                    configMap.put(configurationSection.getName(), configurationSection.getConfiguration());
+                }
             }
         }
 

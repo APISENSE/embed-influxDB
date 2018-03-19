@@ -60,7 +60,9 @@ public final class InfluxConfigurationWriter implements ConfigurationWriter {
             if (configurationSection.getName() != null) {
                 if (configurationSection.isArray()) {
                     configMap.put(configurationSection.getName(), Collections.singletonList(configurationSection.getConfiguration()));
-                } else configMap.put(configurationSection.getName(), configurationSection.getConfiguration());
+                } else {
+                    configMap.put(configurationSection.getName(), configurationSection.getConfiguration());
+                }
             }
         }
 

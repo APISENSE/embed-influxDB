@@ -20,6 +20,9 @@ public abstract class AbstractConfigurationSection implements ConfigurationSecti
     }
 
     @Override
+    public Boolean isArray() { return false; }
+
+    @Override
     public String getName() {
         return sectionName;
     }

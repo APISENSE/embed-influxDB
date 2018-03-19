@@ -8,13 +8,17 @@ import io.apisense.embed.influx.configuration.server.UdpConfigurationSection;
 import io.apisense.embed.influx.configuration.server.ConfigurationProperty;
 import io.apisense.embed.influx.configuration.server.HeadConfigurationSection;
 import io.apisense.embed.influx.configuration.server.DataConfigurationSection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
 
 /**
  * Default implementation of a {@link ConfigurationWriter}.

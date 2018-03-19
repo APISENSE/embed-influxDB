@@ -138,7 +138,7 @@ public class InfluxConfigurationWriterTest {
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
 
         onlyLine = content.get(13);
-        assertThat("We have the UDP Section", onlyLine.contains("[udp]"), is(true));
+        assertThat("We have the UDP Section", onlyLine.contains("[[udp]]"), is(true));
         onlyLine = content.get(14);
         assertEquals("Our udp enabled configuration is present", onlyLine, ENABLED + " = true");
 
@@ -210,7 +210,7 @@ public class InfluxConfigurationWriterTest {
         assertThat("This line is empty", onlyLine.isEmpty(), is(true));
 
         onlyLine = content.get(13);
-        assertThat("We have the UDP Section", onlyLine.contains("[udp]"), is(true));
+        assertThat("We have the UDP Section", onlyLine.contains("[[udp]]"), is(true));
         onlyLine = content.get(14);
         assertThat("Our udp enabled configuration key is present", onlyLine.contains(ENABLED.toString()), is(true));
         assertThat("Our udp enabled configuration value is present", onlyLine.contains("true"), is(true));

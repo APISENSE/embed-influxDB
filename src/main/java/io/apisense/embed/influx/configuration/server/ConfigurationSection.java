@@ -8,6 +8,13 @@ import java.util.Map;
 public interface ConfigurationSection {
 
     /**
+     * Marker for indicate array section.
+     *
+     * @return true if section is array.
+     */
+    Boolean isArray();
+
+    /**
      * Return the section name.
      *
      * @return The section name.

@@ -19,12 +19,21 @@ public class DownloadUrlGeneratorTest {
     }
 
     @Test
-    public void testProductionLinuxArmUrlIsCorrect() throws Exception {
-        VersionConfiguration config = new VersionConfiguration(OSType.Linux, OSArchitecture.ARM, InfluxVersion.V1_3_5);
+    public void testProductionMacUrlIsCorrect() throws Exception {
+        VersionConfiguration config = new VersionConfiguration(OSType.Mac, OSArchitecture.x86_64, InfluxVersion.V1_7_6);
         String url = influxUrlGenerator.buildSource(config).toString();
 
         assertThat("Url is the same as on the download website", url,
-                is("https://dl.influxdata.com/influxdb/releases/influxdb-1.3.5_linux_armhf.tar.gz"));
+                is("https://dl.influxdata.com/influxdb/releases/influxdb-1.7.6_darwin_amd64.tar.gz"));
+    }
+
+    @Test
+    public void testProductionLinuxArmUrlIsCorrect() throws Exception {
+        VersionConfiguration config = new VersionConfiguration(OSType.Linux, OSArchitecture.ARM, InfluxVersion.V1_7_6);
+        String url = influxUrlGenerator.buildSource(config).toString();
+
+        assertThat("Url is the same as on the download website", url,
+                is("https://dl.influxdata.com/influxdb/releases/influxdb-1.7.6_linux_armhf.tar.gz"));
     }
 
     @Test
@@ -38,11 +47,11 @@ public class DownloadUrlGeneratorTest {
 
     @Test
     public void testProductionLinux32BitsUrlIsCorrect() throws Exception {
-        VersionConfiguration config = new VersionConfiguration(OSType.Linux, OSArchitecture.i386, InfluxVersion.V1_3_5);
+        VersionConfiguration config = new VersionConfiguration(OSType.Linux, OSArchitecture.i386, InfluxVersion.V1_7_6);
         String url = influxUrlGenerator.buildSource(config).toString();
 
         assertThat("Url is the same as on the download website", url,
-                is("https://dl.influxdata.com/influxdb/releases/influxdb-1.3.5_linux_i386.tar.gz"));
+                is("https://dl.influxdata.com/influxdb/releases/influxdb-1.7.6_linux_i386.tar.gz"));
     }
 
     @Test
@@ -56,11 +65,11 @@ public class DownloadUrlGeneratorTest {
 
     @Test
     public void testProductionLinux64BitsUrlIsCorrect() throws Exception {
-        VersionConfiguration config = new VersionConfiguration(OSType.Linux, OSArchitecture.x86_64, InfluxVersion.V1_3_5);
+        VersionConfiguration config = new VersionConfiguration(OSType.Linux, OSArchitecture.x86_64, InfluxVersion.V1_7_6);
         String url = influxUrlGenerator.buildSource(config).toString();
 
         assertThat("Url is the same as on the download website", url,
-                is("https://dl.influxdata.com/influxdb/releases/influxdb-1.3.5_linux_amd64.tar.gz"));
+                is("https://dl.influxdata.com/influxdb/releases/influxdb-1.7.6_linux_amd64.tar.gz"));
     }
 
     @Test
@@ -74,11 +83,11 @@ public class DownloadUrlGeneratorTest {
 
     @Test
     public void testProductionWindows64BitsUrlIsCorrect() throws Exception {
-        VersionConfiguration config = new VersionConfiguration(OSType.Windows, OSArchitecture.x86_64, InfluxVersion.V1_3_5);
+        VersionConfiguration config = new VersionConfiguration(OSType.Windows, OSArchitecture.x86_64, InfluxVersion.V1_7_6);
         String url = influxUrlGenerator.buildSource(config).toString();
 
         assertThat("Url is the same as on the download website", url,
-                is("https://dl.influxdata.com/influxdb/releases/influxdb-1.3.5_windows_amd64.zip"));
+                is("https://dl.influxdata.com/influxdb/releases/influxdb-1.7.6_windows_amd64.zip"));
     }
 
     @Test

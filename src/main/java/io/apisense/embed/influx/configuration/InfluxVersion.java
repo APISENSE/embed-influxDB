@@ -3,7 +3,8 @@ package io.apisense.embed.influx.configuration;
 import de.flapdoodle.embed.process.distribution.IVersion;
 
 public enum InfluxVersion implements IVersion {
-    PRODUCTION("1.3.5", "releases"),
+    PRODUCTION("1.7.6", "releases"),
+    V1_7_6("1.7.6", "releases"),
     V1_3_5("1.3.5", "releases"),
     NIGHTLY("nightly", "nightlies");
 

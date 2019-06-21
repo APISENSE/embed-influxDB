@@ -8,7 +8,8 @@ import io.apisense.embed.influx.download.InfluxArchiveType;
  */
 public enum OSType {
     Linux("linux", InfluxArchiveType.TGZ, Platform.Linux),
-    Windows("windows", InfluxArchiveType.ZIP, Platform.Windows);
+    Windows("windows", InfluxArchiveType.ZIP, Platform.Windows),
+    Mac("darwin", InfluxArchiveType.TGZ, Platform.OS_X);
 
     public final String dlPath;
     public final InfluxArchiveType archiveType;
@@ -26,7 +27,14 @@ public enum OSType {
      * @return The value of the currently running {@link OSType}.
      */
     public static OSType getCurrent() {
-        return System.getProperty("os.name").toLowerCase().contains("windows") ? OSType.Windows : OSType.Linux;
+        final String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("windows")) {
+            return OSType.Windows;
+        }
+        if (os.contains("mac")) {
+            return OSType.Mac;
+        }
+        return OSType.Linux;
     }
 
     public Platform toPlatform() {

@@ -38,7 +38,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
 
     // Network Helper among others
-    compile 'de.flapdoodle.embed:de.flapdoodle.embed.process:2.0.1'
+    compile 'de.flapdoodle.embed:de.flapdoodle.embed.process:2.1.2'
 
     // Tests
     testCompile 'junit:junit:4.12'

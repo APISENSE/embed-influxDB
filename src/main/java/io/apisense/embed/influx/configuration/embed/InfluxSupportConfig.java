@@ -2,6 +2,8 @@ package io.apisense.embed.influx.configuration.embed;
 
 import de.flapdoodle.embed.process.config.ISupportConfig;
 
+import java.util.concurrent.TimeUnit;
+
 class InfluxSupportConfig implements ISupportConfig {
     static final InfluxSupportConfig instance = new InfluxSupportConfig();
 
@@ -13,6 +15,11 @@ class InfluxSupportConfig implements ISupportConfig {
     @Override
     public String getSupportUrl() {
         return "https://github.com/APISENSE/embed-influxDB";
+    }
+
+    @Override
+    public long maxStopTimeoutMillis() {
+        return TimeUnit.SECONDS.toMillis(5);
     }
 
     @Override

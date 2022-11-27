@@ -10,8 +10,8 @@ public enum OSArchitecture {
     x86_64("amd64", BitSize.B64),
     ARM("armhf", BitSize.B32); //TODO: See if there is any issue with arm and BitSize?
 
-    public final String dlPath;
-    public final BitSize bitSize;
+    private final String dlPath;
+    private final BitSize bitSize;
 
     OSArchitecture(String dlPath, BitSize bitSize) {
         this.dlPath = dlPath;
@@ -39,5 +39,9 @@ public enum OSArchitecture {
 
     public BitSize toBitSize() {
         return bitSize;
+    }
+
+    public String getDlPath() {
+        return dlPath;
     }
 }

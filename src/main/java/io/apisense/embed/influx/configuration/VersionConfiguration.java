@@ -1,7 +1,6 @@
 package io.apisense.embed.influx.configuration;
 
 import de.flapdoodle.embed.process.distribution.Distribution;
-import de.flapdoodle.embed.process.distribution.IVersion;
 
 /**
  * Description of the InfluxDB version to fetch.
@@ -24,7 +23,7 @@ public class VersionConfiguration extends Distribution {
      * @param version The version of InfluxDB to retrieve.
      * @return The filled {@link VersionConfiguration}.
      */
-    public static VersionConfiguration fromRuntime(InfluxVersion version) {
+    public static VersionConfiguration fromRuntime(InfluxIVersion version) {
         return new VersionConfiguration(OSType.getCurrent(), OSArchitecture.getCurrent(), version);
     }
 

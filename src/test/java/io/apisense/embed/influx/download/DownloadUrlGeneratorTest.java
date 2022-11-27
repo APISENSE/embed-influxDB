@@ -24,7 +24,7 @@ public class DownloadUrlGeneratorTest {
         String url = influxUrlGenerator.buildSource(config).toString();
 
         assertThat("Url is the same as on the download website", url,
-                is("https://dl.influxdata.com/influxdb/releases/influxdb-2.5.1_darwin_amd64.tar.gz"));
+                is("https://dl.influxdata.com/influxdb/releases/influxdb2-2.5.1-darwin-amd64.tar.gz"));
     }
 
     @Test

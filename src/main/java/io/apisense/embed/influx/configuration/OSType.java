@@ -11,9 +11,9 @@ public enum OSType {
     Windows("windows", InfluxArchiveType.ZIP, Platform.Windows),
     Mac("darwin", InfluxArchiveType.TGZ, Platform.OS_X);
 
-    public final String dlPath;
-    public final InfluxArchiveType archiveType;
-    private Platform platform;
+    private final String dlPath;
+    private final InfluxArchiveType archiveType;
+    private final Platform platform;
 
     OSType(String dlPath, InfluxArchiveType archiveType, Platform platform) {
         this.dlPath = dlPath;
@@ -39,5 +39,13 @@ public enum OSType {
 
     public Platform toPlatform() {
         return platform;
+    }
+
+    public String getDlPath() {
+        return dlPath;
+    }
+
+    public InfluxArchiveType getArchiveType() {
+        return archiveType;
     }
 }

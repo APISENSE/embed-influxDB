@@ -48,7 +48,7 @@ public final class FromFileConfigurationWriter implements ConfigurationWriter {
         /**
          * Set the path to remove on server stop,
          * nothing will be removed if not specified.
-         *
+         * <p>
          * This can be used to remove the data between each database usage.
          *
          * @param dataPath - path to data location

@@ -20,12 +20,12 @@ public class InfluxUrlGenerator implements UrlGenerator {
     public URL buildSource(VersionConfiguration configuration) {
         StringBuilder builder = new StringBuilder(HOSTNAME)
                 .append("/").append(BASE_URL)
-                .append("/").append(configuration.version.directory)
+                .append("/").append(configuration.getVersion().getReleaseType().getDirectory())
                 .append("/").append(PRODUCT_NAME)
-                .append("-").append(configuration.version.dlPath)
-                .append("_").append(configuration.os.dlPath)
-                .append("_").append(configuration.architecture.dlPath)
-                .append(".").append(configuration.os.archiveType.extension);
+                .append("-").append(configuration.getVersion().asInDownloadPath())
+                .append("_").append(configuration.getOs().getDlPath())
+                .append("_").append(configuration.getArchitecture().dlPath)
+                .append(".").append(configuration.getOs().getArchiveType().getExtension());
         try {
             return new URL(builder.toString());
         } catch (MalformedURLException e) {

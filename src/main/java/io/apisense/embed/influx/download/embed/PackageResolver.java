@@ -20,7 +20,7 @@ public class PackageResolver implements IPackageResolver {
 
     @Override
     public ArchiveType getArchiveType(Distribution distribution) {
-        return ((VersionConfiguration) distribution).os.archiveType.toEmbedArchiveType();
+        return ((VersionConfiguration) distribution).getOs().getArchiveType().toEmbedArchiveType();
     }
 
     @Override

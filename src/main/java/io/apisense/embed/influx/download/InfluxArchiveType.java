@@ -23,8 +23,8 @@ public enum InfluxArchiveType {
         }
     };
 
-    public final String extension;
-    private ArchiveType embedArchiveType;
+    private final String extension;
+    private final ArchiveType embedArchiveType;
 
     InfluxArchiveType(String extension, ArchiveType embedArchiveType) {
         this.extension = extension;
@@ -39,6 +39,14 @@ public enum InfluxArchiveType {
     public abstract AbstractUnArchiver unArchiver();
 
     public ArchiveType toEmbedArchiveType() {
+        return embedArchiveType;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public ArchiveType getEmbedArchiveType() {
         return embedArchiveType;
     }
 }

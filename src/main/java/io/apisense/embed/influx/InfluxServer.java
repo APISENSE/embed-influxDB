@@ -108,7 +108,7 @@ public class InfluxServer implements EmbeddedDB {
             IRuntimeConfig runtimeConfig = buildRuntimeConfig();
 
             InfluxServerStarter influxServerStarter = new InfluxServerStarter(runtimeConfig);
-            InfluxExecutableConfig executionConfig = new InfluxExecutableConfig(versionConfig.version, configurationWriter);
+            InfluxExecutableConfig executionConfig = new InfluxExecutableConfig(versionConfig.getVersion(), configurationWriter);
 
             return new InfluxServer(influxServerStarter, executionConfig, versionConfig);
         }

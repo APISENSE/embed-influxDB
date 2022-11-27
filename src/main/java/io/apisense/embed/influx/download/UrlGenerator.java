@@ -11,9 +11,9 @@ import java.net.URL;
 interface UrlGenerator {
     /**
      * Generate influxDB download url depending on the given data.
-     *
+     * <p>
      * Note: Some OS/Architecture combination may not exist on InfluxDB website,
-     * see: https://portal.influxdata.com/downloads
+     * see: <a href="https://portal.influxdata.com/downloads">https://portal.influxdata.com/downloads</a>
      *
      * @param configuration Server's version description.
      * @return The theoretical download url.

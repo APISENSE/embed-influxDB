@@ -17,7 +17,6 @@ class InfluxSupportConfig implements ISupportConfig {
         return "https://github.com/APISENSE/embed-influxDB";
     }
 
-    @Override
     public long maxStopTimeoutMillis() {
         return TimeUnit.SECONDS.toMillis(5);
     }

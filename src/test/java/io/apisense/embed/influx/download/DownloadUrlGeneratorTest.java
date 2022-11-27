@@ -19,6 +19,15 @@ public class DownloadUrlGeneratorTest {
     }
 
     @Test
+    public void testVersion2MacUrlIsCorrect() throws Exception {
+        VersionConfiguration config = new VersionConfiguration(OSType.Mac, OSArchitecture.x86_64, InfluxVersion.V2_5_1);
+        String url = influxUrlGenerator.buildSource(config).toString();
+
+        assertThat("Url is the same as on the download website", url,
+                is("https://dl.influxdata.com/influxdb/releases/influxdb-2.5.1_darwin_amd64.tar.gz"));
+    }
+
+    @Test
     public void testProductionMacUrlIsCorrect() throws Exception {
         VersionConfiguration config = new VersionConfiguration(OSType.Mac, OSArchitecture.x86_64, InfluxVersion.V1_7_6);
         String url = influxUrlGenerator.buildSource(config).toString();

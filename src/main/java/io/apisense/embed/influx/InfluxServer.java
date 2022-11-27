@@ -12,6 +12,7 @@ import io.apisense.embed.influx.configuration.embed.InfluxDownloadConfigBuilder;
 import io.apisense.embed.influx.configuration.embed.InfluxExecutableConfig;
 import io.apisense.embed.influx.configuration.embed.InfluxRuntimeConfigBuilder;
 import io.apisense.embed.influx.execution.InfluxExecutor;
+import io.apisense.embed.influx.execution.embed.InfluxProcess;
 import io.apisense.embed.influx.execution.embed.InfluxServerStarter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +122,7 @@ public class InfluxServer implements EmbeddedDB {
 
         /**
          * Configure the version of InfluxDB to use.
-         *
+         * <p>
          * Default: The production server using runtime to discover OS and Architecture.
          *
          * @param versionConfig The configuration.
@@ -174,5 +175,17 @@ public class InfluxServer implements EmbeddedDB {
             this.configurationWriter = configurationWriter;
             return this;
         }
+    }
+
+    /**
+     * Returns the internal {@link InfluxProcess} created upon startup.
+     * <p>
+     * You can use this object to interact with the actual process,
+     * but please note that doing might tamper with the library behavior.
+     *
+     * @return The {@link InfluxProcess} if the server has been started, null otherwise.
+     */
+    public InfluxProcess getProcess() {
+        return executor.getInfluxProcess();
     }
 }

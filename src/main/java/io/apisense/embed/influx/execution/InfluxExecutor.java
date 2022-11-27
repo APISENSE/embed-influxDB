@@ -59,4 +59,8 @@ public class InfluxExecutor implements EmbeddedExecutor {
             preparedExecution = null;
         }
     }
+
+    public InfluxProcess getInfluxProcess() {
+        return influxProcess;
+    }
 }

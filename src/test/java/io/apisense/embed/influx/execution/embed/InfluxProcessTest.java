@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -68,6 +69,8 @@ public class InfluxProcessTest {
         verify(configWriterMock).writeFile();
 
         List<String> commandLine = process.getCommandLine(distribution, execConfig, extractedFileSetMock);
+
+        System.out.println(commandLine);
         assertThat("Command line contains 2 elements", commandLine.size(), is(3));
         assertThat("First element is the file", commandLine.get(0), is(retrieveExecutableResource().getAbsolutePath()));
         assertThat("Second element is the command", commandLine.get(1), equalTo("run"));

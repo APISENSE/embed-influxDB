@@ -1,16 +1,17 @@
 package io.apisense.embed.influx.configuration;
 
 import de.flapdoodle.embed.process.distribution.Distribution;
+import de.flapdoodle.embed.process.distribution.IVersion;
 
 /**
  * Description of the InfluxDB version to fetch.
  */
 public class VersionConfiguration extends Distribution {
-    public final OSType os;
-    public final OSArchitecture architecture;
-    public final InfluxVersion version;
+    private final OSType os;
+    private final OSArchitecture architecture;
+    private final InfluxIVersion version;
 
-    public VersionConfiguration(OSType os, OSArchitecture architecture, InfluxVersion version) {
+    public VersionConfiguration(OSType os, OSArchitecture architecture, InfluxIVersion version) {
         super(version, os.toPlatform(), architecture.toBitSize());
         this.os = os;
         this.architecture = architecture;
@@ -25,5 +26,18 @@ public class VersionConfiguration extends Distribution {
      */
     public static VersionConfiguration fromRuntime(InfluxVersion version) {
         return new VersionConfiguration(OSType.getCurrent(), OSArchitecture.getCurrent(), version);
+    }
+
+    public OSType getOs() {
+        return os;
+    }
+
+    public OSArchitecture getArchitecture() {
+        return architecture;
+    }
+
+    @Override
+    public InfluxIVersion getVersion() {
+        return version;
     }
 }

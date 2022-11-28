@@ -188,4 +188,9 @@ public class InfluxServer implements EmbeddedDB {
     public InfluxProcess getProcess() {
         return executor.getInfluxProcess();
     }
+
+    @Override
+    public ServerState getCurrentState() {
+        return currentState;
+    }
 }

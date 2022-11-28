@@ -35,4 +35,11 @@ public interface EmbeddedDB {
      * @throws ServerNotRunningException If the server as not yet been started, or already been stopped.
      */
     void cleanup() throws ServerNotRunningException;
+
+    /**
+     * Retrive the current {@link ServerState}.
+     *
+     * @return The current {@link ServerState}.
+     */
+    ServerState getCurrentState();
 }

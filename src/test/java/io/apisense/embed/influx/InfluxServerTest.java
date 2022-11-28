@@ -5,6 +5,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -60,9 +62,15 @@ public class InfluxServerTest {
 
     @Test
     public void testCleanupWillRemoveConfigFileAndData() throws Exception {
+        assertThat("Server is in unknown state", server.getCurrentState(), equalTo(ServerState.UNKNOWN));
+        server.init();
+        assertThat("Server is in ready state", server.getCurrentState(), equalTo(ServerState.READY));
         server.start();
+        assertThat("Server is in started state", server.getCurrentState(), equalTo(ServerState.STARTED));
         server.stop();
+        assertThat("Server is in stopped state", server.getCurrentState(), equalTo(ServerState.STOPPED));
         server.cleanup();
+        assertThat("Server is in clean state", server.getCurrentState(), equalTo(ServerState.CLEAN));
 
         verify(executorMock).prepare();
         verify(executorMock).start();

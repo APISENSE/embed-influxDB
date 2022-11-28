@@ -19,8 +19,7 @@ import static io.apisense.embed.influx.configuration.server.ConfigurationPropert
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class InfluxConfigurationWriterTest {
     private int httpPort;
@@ -140,7 +139,7 @@ public class InfluxConfigurationWriterTest {
         onlyLine = content.get(13);
         assertThat("We have the UDP Section", onlyLine.contains("[[udp]]"), is(true));
         onlyLine = content.get(14);
-        assertEquals("Our udp enabled configuration is present", onlyLine, ENABLED + " = true");
+        assertThat("Our udp enabled configuration is present", onlyLine, equalTo(ENABLED + " = true"));
 
         onlyLine = content.get(15);
         assertThat("Our udp port configuration key is present", onlyLine.contains(BIND_ADDRESS.toString()), is(true));

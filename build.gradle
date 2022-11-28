@@ -18,8 +18,8 @@ ext.devs = [
 apply plugin: 'java'
 apply plugin: 'jacoco'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -28,22 +28,22 @@ repositories {
 dependencies {
     // Logging
     compile 'log4j:log4j:1.2.17'
-    compile 'org.slf4j:slf4j-log4j12:1.7.25'
+    compile 'org.slf4j:slf4j-log4j12:2.0.4'
     // InfluxDB configuration
     compile 'com.moandjiezana.toml:toml4j:0.7.2'
     // Extract archives
-    compile 'org.codehaus.plexus:plexus-container-default:1.7.1'
-    compile 'org.codehaus.plexus:plexus-archiver:3.5'
+    compile 'org.codehaus.plexus:plexus-container-default:2.1.1'
+    compile 'org.codehaus.plexus:plexus-archiver:4.6.0'
     // Web request
-    compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'com.squareup.okhttp3:okhttp:4.10.0'
 
     // Network Helper among others
     compile 'de.flapdoodle.embed:de.flapdoodle.embed.process:2.1.2'
 
     // Tests
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:3.1.0'
-    testCompile 'com.squareup.okhttp3:mockwebserver:3.9.0'
+    testCompile 'junit:junit:4.13.2'
+    testCompile 'org.mockito:mockito-core:4.8.0'
+    testCompile 'com.squareup.okhttp3:mockwebserver:4.10.0'
 
 }
 

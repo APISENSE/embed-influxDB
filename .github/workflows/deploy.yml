@@ -1,0 +1,38 @@
+name: Create Release & Deploy Artifacts
+
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Prepare Environment
+        env:
+          UPLOAD_SETTINGS: ${{ secrets.UPLOAD_SETTINGS }}
+        run: echo $UPLOAD_SETTINGS >> local.properties
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+      - name: Upload Archive
+        run: ./gradlew uploadArchives
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: New Version.
+          draft: false
+          prerelease: false

@@ -12,13 +12,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Prepare Environment
+      - name: Prepare GPG Key
+        env:
+          SECRING_GPG: ${{ secrets.SECRING_GPG }}
+        run: echo -n "$SECRING_GPG" | base64 -d >> secring.gpg
+      - name: Prepare Upload Configuration
         env:
           UPLOAD_SETTINGS: ${{ secrets.UPLOAD_SETTINGS }}
-          SECRING_GPG: ${{ secrets.SECRING_GPG }}
-        run: |
-          echo $UPLOAD_SETTINGS >> local.properties
-          echo -n $SECRING_GPG | base64 -d >> secring.gpg
+        run: echo $UPLOAD_SETTINGS >> local.properties
       - name: Setup java
         uses: actions/setup-java@v3
         with:

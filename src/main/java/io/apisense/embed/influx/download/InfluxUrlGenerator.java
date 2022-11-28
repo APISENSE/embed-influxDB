@@ -31,10 +31,10 @@ public class InfluxUrlGenerator implements UrlGenerator {
      * Generates the URL to download versions from.
      * There are some slight changes between Influx v1 and v2 to consider.
      * <p>
-     * v1 Linux:   <a href="https://dl.influxdata.com/influxdb/releases/influxdb-1.8.10_linux_amd64.tar.gz"/>
-     * v1 Windows: <a href="https://dl.influxdata.com/influxdb/releases/influxdb-1.8.10_windows_amd64.zip"/>
-     * v2 Linux:   <a href="https://dl.influxdata.com/influxdb/releases/influxdb2-2.5.1-linux-arm64.tar.gz"/>
-     * v2 Windows: <a href="https://dl.influxdata.com/influxdb/releases/influxdb2-2.5.1-windows-amd64.zip"/>
+     * v1 Linux:   <a href="https://dl.influxdata.com/influxdb/releases/influxdb-1.8.10_linux_amd64.tar.gz">influxdb-1.8.10_linux_amd64.tar.gz</a>
+     * v1 Windows: <a href="https://dl.influxdata.com/influxdb/releases/influxdb-1.8.10_windows_amd64.zip">influxdb-1.8.10_windows_amd64.zip</a>
+     * v2 Linux:   <a href="https://dl.influxdata.com/influxdb/releases/influxdb2-2.5.1-linux-arm64.tar.gz">influxdb2-2.5.1-linux-arm64.tar.gz</a>
+     * v2 Windows: <a href="https://dl.influxdata.com/influxdb/releases/influxdb2-2.5.1-windows-amd64.zip">influxdb2-2.5.1-windows-amd64.zip</a>
      *
      * @param configuration Server's version description.
      * @return The final URL to download the Influx package.

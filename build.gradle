@@ -56,6 +56,25 @@ jacocoTestReport {
 
 check.dependsOn jacocoTestReport
 
+sourceSets {
+    integration {
+        java.srcDir "$projectDir/src/it/java"
+        resources.srcDir "$projectDir/src/it/resources"
+        compileClasspath += main.output + test.output
+        runtimeClasspath += main.output + test.output
+    }
+}
+
+configurations {
+    integrationImplementation.extendsFrom testImplementation
+    integrationRuntime.extendsFrom testRuntime
+}
+
+task integrationTest(type: Test) {
+    testClassesDirs = sourceSets.integration.output.classesDirs
+    classpath = sourceSets.integration.runtimeClasspath
+}
+
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc

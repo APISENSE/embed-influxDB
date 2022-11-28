@@ -12,9 +12,10 @@ import org.junit.Test;
 
 import java.io.File;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class InfluxActualExecutionTest {
     private InfluxServer server;
@@ -36,17 +37,39 @@ public class InfluxActualExecutionTest {
         return new File(resource.getFile());
     }
 
-    @Test
+    /**
+     * This test will actively wait for the server to startup and stop before testing assertions.
+     * If anything wrong happens, this test will timeout.
+     *
+     * Worst case scenario, the test will have to download the InfluxDB binary.
+     * Since we are not sure of the download speed on the distant CI, we are setting a quite large Timeout (10 min).
+     */
+    @Test(timeout = 600000)
     public void testPrepareCreateOneExecution() throws Exception {
         server.start();
         InfluxProcess process = server.getProcess();
+        while (process == null) {
+            TimeUnit.MILLISECONDS.sleep(50);
+            process = server.getProcess();
+        }
         assertThat("The process is not null upon startup", process, is(IsNull.notNullValue()));
+
+        while (!process.isProcessRunning()) {
+            TimeUnit.MILLISECONDS.sleep(50);
+        }
         assertThat("The process is running", process.isProcessRunning(), is(true));
 
         server.stop();
+        while (process.isProcessRunning()) {
+            TimeUnit.MILLISECONDS.sleep(50);
+        }
         assertThat("The process is running", process.isProcessRunning(), is(false));
-        process = server.getProcess();
-        assertThat("The process is null after stop", process, is(IsNull.nullValue()));
 
+        process = server.getProcess();
+        while (process != null) {
+            TimeUnit.MILLISECONDS.sleep(50);
+            process = server.getProcess();
+        }
+        assertThat("The process is null after stop", process, is(IsNull.nullValue()));
     }
 }
